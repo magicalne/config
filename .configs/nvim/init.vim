@@ -26,6 +26,7 @@ Plug 'machakann/vim-highlightedyank'
 Plug 'andymass/vim-matchup'
 Plug 'kyazdani42/nvim-web-devicons' " optional, for file icons
 Plug 'kyazdani42/nvim-tree.lua'
+Plug 'xiyaowong/nvim-transparent'
 
 " Fuzzy finder
 Plug 'airblade/vim-rooter'
@@ -93,6 +94,22 @@ hi Normal ctermbg=NONE
 
 " LSP configuration
 lua << END
+-- Setup transparency
+require("transparent").setup({
+  enable = true, -- boolean: enable transparent
+  extra_groups = { -- table/string: additional groups that should be cleared
+    -- In particular, when you set it to 'all', that means all available groups
+
+    -- example of akinsho/nvim-bufferline.lua
+    "BufferLineTabClose",
+    "BufferlineBufferSelected",
+    "BufferLineFill",
+    "BufferLineBackground",
+    "BufferLineSeparator",
+    "BufferLineIndicatorSelected",
+  },
+  exclude = {}, -- table: groups you don't want to clear
+})
 -- Setup theme
 vim.g.tokyonight_style = "night" -- storm or day
 vim.g.tokyonight_italic_functions = true
@@ -140,7 +157,11 @@ cmp.setup({
   },
   mapping = {
     -- Tab immediately completes. C-n/C-p to select.
-    ['<Tab>'] = cmp.mapping.confirm({ select = true })
+    ['<Tab>'] = cmp.mapping.confirm({ select = true }),
+    ['<C-p>'] = cmp.mapping.select_prev_item(),
+    ['<C-n>'] = cmp.mapping.select_next_item(),
+    ['<C-j>'] = cmp.mapping.select_prev_item(),
+    ['<C-k>'] = cmp.mapping.select_next_item(),
   },
   sources = cmp.config.sources({
     -- TODO: currently snippets from lsp end up getting prioritized -- stop that!
@@ -214,7 +235,7 @@ lspconfig.rust_analyzer.setup {
     ["rust-analyzer"] = {
       cargo = {
         allFeatures = true,
-	loadOutDirsFromCheck = true,
+	    loadOutDirsFromCheck = true,
       },
       procMacro = { enable = true, },
       completion = { postfix = { enable = false, }, },
@@ -491,6 +512,8 @@ command! -bang -nargs=? -complete=dir Files
 " Open new file adjacent to current file
 nnoremap <leader>o :e <C-R>=expand("%:p:h") . "/" <CR>
 
+" List open buffers
+nnoremap <leader>b :Buffers <CR>
 " No arrow keys --- force yourself to use the home row
 nnoremap <up> <nop>
 nnoremap <down> <nop>
