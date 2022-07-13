@@ -27,6 +27,7 @@ Plug 'andymass/vim-matchup'
 Plug 'kyazdani42/nvim-web-devicons' " optional, for file icons
 Plug 'kyazdani42/nvim-tree.lua'
 Plug 'xiyaowong/nvim-transparent'
+Plug 'akinsho/bufferline.nvim', { 'tag': 'v2.*' }
 
 " Fuzzy finder
 Plug 'airblade/vim-rooter'
@@ -144,6 +145,27 @@ require("nvim-tree").setup({
     dotfiles = true,
   },
 })
+
+vim.opt.termguicolors = true
+-- Setup bufferline
+require("bufferline").setup {
+	options = {
+		mode = "buffers",
+		numbers = "buffer_id",
+		indicator_icon = '▎',
+		buffer_close_icon = '',
+    	modified_icon = '●',
+		close_icon = '',
+		left_trunc_marker = '',
+		right_trunc_marker = '',
+		diagnostics = "nvim_lsp",
+		color_icons = true,
+		show_buffer_icons = true, -- disable filetype icons for buffers
+    	show_buffer_default_icon = true, -- whether or not an unrecognised filetype should show a default icon
+		show_buffer_close_icons = false,
+    	show_close_icon = false,
+	}
+}
 
 local cmp = require'cmp'
 
@@ -277,6 +299,9 @@ let g:secure_modelines_allowed_items = [
 " Lightline
 let g:lightline = {
       \ 'colorscheme': 'tokyonight',
+	  \ 'enable': {
+	  \   'tabline': 0,
+	  \  },
       \ 'active': {
       \   'left': [ [ 'mode', 'paste' ],
       \             [ 'readonly', 'filename', 'modified' ] ],
@@ -385,9 +410,9 @@ set wildmode=list:longest
 set wildignore=.hg,.svn,*~,*.png,*.jpg,*.gif,*.settings,Thumbs.db,*.min.js,*.swp,publish/*,intermediate/*,*.o,*.hi,Zend,vendor
 
 " Use wide tabs
-set shiftwidth=8
-set softtabstop=8
-set tabstop=8
+set shiftwidth=4
+set softtabstop=4
+set tabstop=4
 set noexpandtab
 
 " Wrapping options
