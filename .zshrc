@@ -76,6 +76,7 @@ plugins=(
 	git-prompt
 	zsh-autosuggestions
 	fzf
+	vi-mode
 )
 
 source ~/.profile
@@ -106,9 +107,6 @@ source $ZSH/oh-my-zsh.sh
 # Example aliases
 # alias zshconfig="mate ~/.zshrc"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
-
-# Use vi mode
-bindkey -v
 
 # keybindings
 # Rebindkey! I don't like left arrow.

@@ -142,7 +142,7 @@ require("nvim-tree").setup({
     group_empty = true,
   },
   filters = {
-    dotfiles = true,
+    dotfiles = false,
   },
 })
 
@@ -245,6 +245,10 @@ local on_attach = function(client, bufnr)
     },
   })
 end
+
+-- Auto close quickfix buffer opened by lspconfig.
+local autocmd = vim.api.nvim_create_autocmd
+autocmd({ "BufLeave" }, { pattern = { "*" }, command = "if &buftype == 'quickfix'|q|endif" })
 
 
 local capabilities = require('cmp_nvim_lsp').update_capabilities(vim.lsp.protocol.make_client_capabilities())
