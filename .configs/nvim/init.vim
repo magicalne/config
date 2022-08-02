@@ -30,7 +30,7 @@ Plug 'xiyaowong/nvim-transparent'
 Plug 'akinsho/bufferline.nvim', { 'tag': 'v2.*' }
 
 " Fuzzy finder
-Plug 'airblade/vim-rooter'
+" Plug 'airblade/vim-rooter'
 Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
 Plug 'junegunn/fzf.vim'
 
@@ -117,7 +117,7 @@ vim.g.tokyonight_italic_functions = true
 vim.g.tokyonight_sidebars = { "qf", "vista_kind", "terminal", "packer" }
 
 -- Change the "hint" color to the "orange" color, and make the "error" color bright red
-vim.g.tokyonight_colors = { hint = "orange", error = "#ff0000" }
+vim.g.tokyonight_colors = { hint = "orange", error = "#f00056" }
 
 -- Load the colorscheme
 vim.cmd[[colorscheme tokyonight]]
@@ -144,6 +144,11 @@ require("nvim-tree").setup({
   filters = {
     dotfiles = false,
   },
+        change_dir = {
+          enable = false,
+          global = false,
+          restrict_above_cwd = false,
+        },
 })
 
 vim.opt.termguicolors = true
@@ -182,8 +187,8 @@ cmp.setup({
     ['<Tab>'] = cmp.mapping.confirm({ select = true }),
     ['<C-p>'] = cmp.mapping.select_prev_item(),
     ['<C-n>'] = cmp.mapping.select_next_item(),
-    ['<C-j>'] = cmp.mapping.select_prev_item(),
-    ['<C-k>'] = cmp.mapping.select_next_item(),
+    ['<C-k>'] = cmp.mapping.select_prev_item(),
+    ['<C-j>'] = cmp.mapping.select_next_item(),
   },
   sources = cmp.config.sources({
     -- TODO: currently snippets from lsp end up getting prioritized -- stop that!
@@ -273,6 +278,10 @@ lspconfig.clangd.setup {
   on_attach = on_attach,
   capabilities = capabilities,
 }
+lspconfig.gopls.setup {
+  on_attach = on_attach,
+  capabilities = capabilities,
+}
 
 vim.lsp.handlers["textDocument/publishDiagnostics"] = vim.lsp.with(
   vim.lsp.diagnostic.on_publish_diagnostics, {
@@ -343,7 +352,6 @@ let g:latex_fold_sections = []
 
 " Open hotkeys
 map <C-p> :Files<CR>
-nmap <leader>; :Buffers<CR>
 
 " Quick-save
 nmap <leader>w :w<CR>
@@ -425,7 +433,7 @@ set formatoptions+=r " continue comments when pressing ENTER in I mode
 set formatoptions+=q " enable formatting of comments with gq
 set formatoptions+=n " detect lists for formatting
 set formatoptions+=b " auto-wrap in insert mode, and do not wrap old long lines
-
+set wrap
 " Proper search
 set incsearch
 set ignorecase
@@ -475,7 +483,7 @@ set listchars=nbsp:¬,extends:»,precedes:«,trail:•
 " # Keyboard shortcuts
 " =============================================================================
 " ; as :
-nnoremap ; :
+" nnoremap ; :
 
 " Ctrl+j and Ctrl+k as Esc
 " Ctrl-j is a little awkward unfortunately:
@@ -520,7 +528,7 @@ map <Leader>p "*p
 
 " <leader>s for Rg search
 noremap <leader>s :Rg
-let g:fzf_layout = { 'down': '~20%' }
+let g:fzf_layout = { 'window': { 'width': 0.9, 'height': 0.6 } } 
 command! -bang -nargs=* Rg
   \ call fzf#vim#grep(
   \   'rg --column --line-number --no-heading --color=always '.shellescape(<q-args>), 1,
@@ -535,14 +543,18 @@ endfunction
 
 command! -bang -nargs=? -complete=dir Files
   \ call fzf#vim#files(<q-args>, {'source': s:list_cmd(),
-  \                               'options': '--tiebreak=index'}, <bang>0)
+  \                               'options': ['--tiebreak=index', '--info=inline', '--preview', 'cat {}']}, <bang>0)
 
 
+" map dictionary
+inoremap <expr> <c-x><c-k> fzf#vim#complete('cat /usr/share/dict/words')
 " Open new file adjacent to current file
 nnoremap <leader>o :e <C-R>=expand("%:p:h") . "/" <CR>
 
 " List open buffers
 nnoremap <leader>b :Buffers <CR>
+" List history buffers
+nnoremap <leader>h :History <CR>
 " No arrow keys --- force yourself to use the home row
 nnoremap <up> <nop>
 nnoremap <down> <nop>
