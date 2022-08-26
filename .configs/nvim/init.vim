@@ -28,6 +28,7 @@ Plug 'kyazdani42/nvim-web-devicons' " optional, for file icons
 Plug 'kyazdani42/nvim-tree.lua'
 Plug 'xiyaowong/nvim-transparent'
 Plug 'akinsho/bufferline.nvim', { 'tag': 'v2.*' }
+Plug 'lukas-reineke/indent-blankline.nvim'
 
 " Fuzzy finder
 " Plug 'airblade/vim-rooter'
@@ -42,6 +43,7 @@ Plug 'hrsh7th/cmp-buffer', {'branch': 'main'}
 Plug 'hrsh7th/cmp-path', {'branch': 'main'}
 Plug 'hrsh7th/nvim-cmp', {'branch': 'main'}
 Plug 'ray-x/lsp_signature.nvim'
+Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
 
 " Only because nvim-cmp _requires_ snippets
 Plug 'hrsh7th/cmp-vsnip', {'branch': 'main'}
@@ -144,11 +146,9 @@ require("nvim-tree").setup({
   filters = {
     dotfiles = false,
   },
-        change_dir = {
-          enable = false,
-          global = false,
-          restrict_above_cwd = false,
-        },
+  update_focused_file = {
+    enable = true,
+  }
 })
 
 vim.opt.termguicolors = true
@@ -255,7 +255,6 @@ end
 local autocmd = vim.api.nvim_create_autocmd
 autocmd({ "BufLeave" }, { pattern = { "*" }, command = "if &buftype == 'quickfix'|q|endif" })
 
-
 local capabilities = require('cmp_nvim_lsp').update_capabilities(vim.lsp.protocol.make_client_capabilities())
 lspconfig.rust_analyzer.setup {
   on_attach = on_attach,
@@ -290,6 +289,52 @@ vim.lsp.handlers["textDocument/publishDiagnostics"] = vim.lsp.with(
     update_in_insert = true,
   }
 )
+lspconfig.pyright.setup{
+  on_attach = on_attach,
+  capabilities = capabilities,
+}
+
+-- treesitter
+require'nvim-treesitter.configs'.setup {
+  -- A list of parser names, or "all"
+  ensure_installed = { "c", "lua", "rust", "python" },
+
+  -- Install parsers synchronously (only applied to `ensure_installed`)
+  sync_install = false,
+
+  -- Automatically install missing parsers when entering buffer
+  auto_install = true,
+
+  -- List of parsers to ignore installing (for "all")
+  --ignore_install = { "javascript" },
+
+  highlight = {
+    -- `false` will disable the whole extension
+    enable = true,
+
+    -- NOTE: these are the names of the parsers and not the filetype. (for example if you want to
+    -- disable highlighting for the `tex` filetype, you need to include `latex` in this list as this is
+    -- the name of the parser)
+    -- list of language that will be disabled
+    disable = { },
+
+    -- Setting this to true will run `:h syntax` and tree-sitter at the same time.
+    -- Set this to `true` if you depend on 'syntax' being enabled (like for indentation).
+    -- Using this option may slow down your editor, and you may see some duplicate highlights.
+    -- Instead of true it can also be a list of languages
+    additional_vim_regex_highlighting = false,
+  },
+}
+
+-- indent-blankline
+-- vim.opt.list = true
+-- vim.opt.listchars:append "space:⋅"
+-- vim.opt.listchars:append "eol:↴"
+require("indent_blankline").setup {
+    -- space_char_blankline = " ",
+    -- show_current_context = true,
+    -- show_end_of_line = true,
+}
 END
 
 " Enable type inlay hints
@@ -312,9 +357,9 @@ let g:secure_modelines_allowed_items = [
 " Lightline
 let g:lightline = {
       \ 'colorscheme': 'tokyonight',
-	  \ 'enable': {
-	  \   'tabline': 0,
-	  \  },
+      \ 'enable': {
+          \ 'tabline': 0,
+      \ },
       \ 'active': {
       \   'left': [ [ 'mode', 'paste' ],
       \             [ 'readonly', 'filename', 'modified' ] ],
@@ -422,10 +467,13 @@ set wildmode=list:longest
 set wildignore=.hg,.svn,*~,*.png,*.jpg,*.gif,*.settings,Thumbs.db,*.min.js,*.swp,publish/*,intermediate/*,*.o,*.hi,Zend,vendor
 
 " Use wide tabs
-set shiftwidth=4
 set softtabstop=4
-set tabstop=4
-set noexpandtab
+set tabstop=8     " tabs are at proper location
+set expandtab     " don't use actual tab character (ctrl-v)
+set shiftwidth=4  " indenting is 4 spaces
+set autoindent    " turns it on
+" set smartindent   " does the right thing (mostly) in programs
+" set cindent       " stricter rules for C programs
 
 " Wrapping options
 set formatoptions=tc " wrap text and comments using textwidth
@@ -555,6 +603,10 @@ nnoremap <leader>o :e <C-R>=expand("%:p:h") . "/" <CR>
 nnoremap <leader>b :Buffers <CR>
 " List history buffers
 nnoremap <leader>h :History <CR>
+" Close buffer to left
+nnoremap <leader>ch :BufferLineCloseLeft <CR>
+" Close buffer to right
+nnoremap <leader>cl :BufferLineCloseRight <CR>
 " No arrow keys --- force yourself to use the home row
 nnoremap <up> <nop>
 nnoremap <down> <nop>
@@ -610,6 +662,9 @@ endif
 " Follow Rust code style rules
 au Filetype rust source ~/.config/nvim/scripts/spacetab.vim
 au Filetype rust set colorcolumn=100
+
+" C code style
+au Filetype cpp setlocal shiftwidth=2 softtabstop=2 tabstop=2 expandtab
 
 " Help filetype detection
 autocmd BufRead *.plot set filetype=gnuplot
