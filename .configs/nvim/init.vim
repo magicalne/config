@@ -19,6 +19,7 @@ Plug 'ciaranm/securemodelines'
 Plug 'editorconfig/editorconfig-vim'
 Plug 'justinmk/vim-sneak'
 Plug 'windwp/nvim-autopairs'
+Plug 'terryma/vim-expand-region'
 
 " GUI enhancements
 Plug 'itchyny/lightline.vim'
@@ -58,6 +59,9 @@ Plug 'rhysd/vim-clang-format'
 Plug 'dag/vim-fish'
 Plug 'godlygeek/tabular'
 Plug 'plasticboy/vim-markdown'
+
+" git
+Plug 'f-person/git-blame.nvim'
 
 " Theme
 Plug 'folke/tokyonight.nvim', { 'branch': 'main' }
@@ -124,6 +128,7 @@ vim.g.tokyonight_colors = { hint = "orange", error = "#f00056" }
 -- Load the colorscheme
 vim.cmd[[colorscheme tokyonight]]
 
+
 -- Setup auto-pair
 require("nvim-autopairs").setup {}
 
@@ -157,7 +162,9 @@ require("bufferline").setup {
 	options = {
 		mode = "buffers",
 		numbers = "buffer_id",
-		indicator_icon = '▎',
+		indicator = {
+                    style = '▎'
+                },
 		buffer_close_icon = '',
     	modified_icon = '●',
 		close_icon = '',
@@ -598,6 +605,8 @@ command! -bang -nargs=? -complete=dir Files
 inoremap <expr> <c-x><c-k> fzf#vim#complete('cat /usr/share/dict/words')
 " Open new file adjacent to current file
 nnoremap <leader>o :e <C-R>=expand("%:p:h") . "/" <CR>
+" Type <Space>w to save file (a lot faster than :w<Enter>):
+nnoremap <Leader>w :w<CR>
 
 " List open buffers
 nnoremap <leader>b :Buffers <CR>
@@ -642,6 +651,18 @@ imap <F1> <Esc>
 " nvim-tree shortcuts
 nnoremap <leader>t :NvimTreeToggle <CR>
 
+" visual
+vnoremap <C-r> "hy:%s/<C-r>h//gc<left><left><left>
+
+" region expand
+vmap v <Plug>(expand_region_expand)
+vmap <C-v> <Plug>(expand_region_shrink)
+
+" Use the "black hole register", "_ to really delete something: "_d.
+" Use "_dP to paste something and keep it available for further pasting.
+nnoremap <leader>d "_d
+xnoremap <leader>d "_d
+xnoremap <leader>p "_dP
 " =============================================================================
 " # Autocommands
 " =============================================================================
@@ -665,6 +686,7 @@ au Filetype rust set colorcolumn=100
 
 " C code style
 au Filetype cpp setlocal shiftwidth=2 softtabstop=2 tabstop=2 expandtab
+au Filetype c setlocal shiftwidth=2 softtabstop=2 tabstop=2 expandtab
 
 " Help filetype detection
 autocmd BufRead *.plot set filetype=gnuplot

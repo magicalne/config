@@ -15,9 +15,11 @@
 
 ### cargo
 - rg
-- fd
 - proximity-sort 
 - exa (or `dnf install`)
+
+### go
+- fd
 
 ### fonts
 
