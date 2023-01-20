@@ -262,7 +262,7 @@ end
 local autocmd = vim.api.nvim_create_autocmd
 autocmd({ "BufLeave" }, { pattern = { "*" }, command = "if &buftype == 'quickfix'|q|endif" })
 
-local capabilities = require('cmp_nvim_lsp').update_capabilities(vim.lsp.protocol.make_client_capabilities())
+local capabilities = require('cmp_nvim_lsp').default_capabilities(vim.lsp.protocol.make_client_capabilities())
 lspconfig.rust_analyzer.setup {
   on_attach = on_attach,
   flags = {
