@@ -14,12 +14,11 @@
 - llvm*
 
 ### cargo
-- rg
+- alacritty
+- ripgrep
 - proximity-sort 
-- exa (or `dnf install`)
-
-### go
-- fd
+- exa
+- fd-find
 
 ### fonts
 
