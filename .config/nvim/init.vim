@@ -19,6 +19,7 @@ Plug 'ciaranm/securemodelines'
 Plug 'editorconfig/editorconfig-vim'
 Plug 'justinmk/vim-sneak'
 Plug 'windwp/nvim-autopairs'
+Plug 'windwp/nvim-ts-autotag'
 Plug 'terryma/vim-expand-region'
 
 " GUI enhancements
@@ -27,7 +28,6 @@ Plug 'machakann/vim-highlightedyank'
 Plug 'andymass/vim-matchup'
 Plug 'kyazdani42/nvim-web-devicons' " optional, for file icons
 Plug 'kyazdani42/nvim-tree.lua'
-Plug 'xiyaowong/nvim-transparent'
 Plug 'akinsho/bufferline.nvim', { 'tag': 'v2.*' }
 Plug 'lukas-reineke/indent-blankline.nvim'
 
@@ -65,6 +65,7 @@ Plug 'f-person/git-blame.nvim'
 
 " Theme
 Plug 'folke/tokyonight.nvim', { 'branch': 'main' }
+Plug 'Yazeed1s/oh-lucy.nvim'
 
 call plug#end()
 
@@ -82,7 +83,7 @@ if (match($TERM, "-256color") != -1) && (match($TERM, "screen-256color") == -1)
   " screen does not (yet) support truecolor
   set termguicolors
 endif
-set background=dark
+"set background=dark
 let base16colorspace=256
 "let g:base16_shell_path="~/dev/others/base16/templates/shell/scripts/"
 "colorscheme base16-gruvbox-dark-hard
@@ -101,24 +102,9 @@ hi Normal ctermbg=NONE
 
 " LSP configuration
 lua << END
--- Setup transparency
-require("transparent").setup({
-  enable = true, -- boolean: enable transparent
-  extra_groups = { -- table/string: additional groups that should be cleared
-    -- In particular, when you set it to 'all', that means all available groups
 
-    -- example of akinsho/nvim-bufferline.lua
-    "BufferLineTabClose",
-    "BufferlineBufferSelected",
-    "BufferLineFill",
-    "BufferLineBackground",
-    "BufferLineSeparator",
-    "BufferLineIndicatorSelected",
-  },
-  exclude = {}, -- table: groups you don't want to clear
-})
 -- Setup theme
-vim.g.tokyonight_style = "night" -- storm or day
+-- vim.g.tokyonight_style = "night" -- storm or day
 vim.g.tokyonight_italic_functions = true
 vim.g.tokyonight_sidebars = { "qf", "vista_kind", "terminal", "packer" }
 
@@ -126,11 +112,18 @@ vim.g.tokyonight_sidebars = { "qf", "vista_kind", "terminal", "packer" }
 vim.g.tokyonight_colors = { hint = "orange", error = "#f00056" }
 
 -- Load the colorscheme
-vim.cmd[[colorscheme tokyonight]]
+vim.cmd[[colorscheme tokyonight-night]]
+-- vim.cmd[[colorscheme tokyonight-storm]]
+-- vim.cmd[[colorscheme tokyonight-storm]]
+-- vim.cmd[[colorscheme tokyonight-day]]
+
+-- vim.cmd[[colorscheme oh-lucy]] -- for oh-lucy
+
 
 
 -- Setup auto-pair
-require("nvim-autopairs").setup {}
+require("nvim-autopairs").setup {
+}
 
 -- Setup nvim file icons
 require("nvim-web-devicons").setup{ default = true }
@@ -163,20 +156,21 @@ require("bufferline").setup {
 		mode = "buffers",
 		numbers = "buffer_id",
 		indicator = {
-                    style = '▎'
+                    icon = '| ',
+                    style = 'underline',
                 },
 		buffer_close_icon = '',
-    	modified_icon = '●',
+    	        modified_icon = '●',
 		close_icon = '',
 		left_trunc_marker = '',
 		right_trunc_marker = '',
 		diagnostics = "nvim_lsp",
 		color_icons = true,
 		show_buffer_icons = true, -- disable filetype icons for buffers
-    	show_buffer_default_icon = true, -- whether or not an unrecognised filetype should show a default icon
+    	        show_buffer_default_icon = true, -- whether or not an unrecognised filetype should show a default icon
 		show_buffer_close_icons = false,
-    	show_close_icon = false,
-	}
+    	        show_close_icon = false,
+	},
 }
 
 local cmp = require'cmp'
@@ -216,10 +210,25 @@ cmp.setup.cmdline(':', {
 })
 
 local cmp_autopairs = require('nvim-autopairs.completion.cmp')
+local handlers = require('nvim-autopairs.completion.handlers')
 cmp.event:on(
   'confirm_done',
-  cmp_autopairs.on_confirm_done()
+  cmp_autopairs.on_confirm_done({
+    filetypes = {
+      -- "*" is a alias to all filetypes
+      ["*"] = {
+        ["("] = {
+          kind = {
+            cmp.lsp.CompletionItemKind.Function,
+            cmp.lsp.CompletionItemKind.Method,
+          },
+          handler = handlers["*"]
+        }
+      }
+    }
+  })
 )
+
 
 -- Setup lspconfig.
 local on_attach = function(client, bufnr)
@@ -275,7 +284,7 @@ lspconfig.rust_analyzer.setup {
 	    loadOutDirsFromCheck = true,
       },
       procMacro = { enable = true, },
-      completion = { postfix = { enable = false, }, },
+      completion = { postfix = { enable = true, }, },
     },
   },
   capabilities = capabilities,
@@ -285,6 +294,10 @@ lspconfig.clangd.setup {
   capabilities = capabilities,
 }
 lspconfig.gopls.setup {
+  on_attach = on_attach,
+  capabilities = capabilities,
+}
+require'lspconfig'.tsserver.setup{
   on_attach = on_attach,
   capabilities = capabilities,
 }
@@ -304,7 +317,7 @@ lspconfig.pyright.setup{
 -- treesitter
 require'nvim-treesitter.configs'.setup {
   -- A list of parser names, or "all"
-  ensure_installed = { "c", "lua", "rust", "python" },
+  ensure_installed = { "c", "lua", "rust", "python", "typescript" },
 
   -- Install parsers synchronously (only applied to `ensure_installed`)
   sync_install = false,
@@ -331,16 +344,18 @@ require'nvim-treesitter.configs'.setup {
     -- Instead of true it can also be a list of languages
     additional_vim_regex_highlighting = false,
   },
+  -- nvim-ts-autotag
+  autotag = { enable = true, }
 }
 
 -- indent-blankline
--- vim.opt.list = true
+vim.opt.list = true
 -- vim.opt.listchars:append "space:⋅"
--- vim.opt.listchars:append "eol:↴"
+vim.opt.listchars:append "eol:↴"
 require("indent_blankline").setup {
-    -- space_char_blankline = " ",
-    -- show_current_context = true,
-    -- show_end_of_line = true,
+  space_char_blankline = " ",
+  show_current_context = true,
+  show_end_of_line = true
 }
 END
 
@@ -363,7 +378,6 @@ let g:secure_modelines_allowed_items = [
 
 " Lightline
 let g:lightline = {
-      \ 'colorscheme': 'tokyonight',
       \ 'enable': {
           \ 'tabline': 0,
       \ },
@@ -481,6 +495,10 @@ set shiftwidth=4  " indenting is 4 spaces
 set autoindent    " turns it on
 " set smartindent   " does the right thing (mostly) in programs
 " set cindent       " stricter rules for C programs
+"
+autocmd Filetype javascript setlocal ts=2 sw=2 sts=0 expandtab
+autocmd Filetype typescript setlocal ts=2 sw=2 sts=0 expandtab
+autocmd Filetype vue setlocal ts=2 sw=2 sts=0 expandtab
 
 " Wrapping options
 set formatoptions=tc " wrap text and comments using textwidth
@@ -532,7 +550,7 @@ set shortmess+=c " don't give |ins-completion-menu| messages.
 
 " Show those damn hidden characters
 " Verbose: set listchars=nbsp:¬,eol:¶,extends:»,precedes:«,trail:•
-set listchars=nbsp:¬,extends:»,precedes:«,trail:•
+" set listchars=nbsp:¬,extends:»,precedes:«,trail:•
 
 " =============================================================================
 " # Keyboard shortcuts
@@ -605,8 +623,6 @@ command! -bang -nargs=? -complete=dir Files
 inoremap <expr> <c-x><c-k> fzf#vim#complete('cat /usr/share/dict/words')
 " Open new file adjacent to current file
 nnoremap <leader>o :e <C-R>=expand("%:p:h") . "/" <CR>
-" Type <Space>w to save file (a lot faster than :w<Enter>):
-nnoremap <Leader>w :w<CR>
 
 " List open buffers
 nnoremap <leader>b :Buffers <CR>
@@ -663,6 +679,9 @@ vmap <C-v> <Plug>(expand_region_shrink)
 nnoremap <leader>d "_d
 xnoremap <leader>d "_d
 xnoremap <leader>p "_dP
+
+" Context of the current line.
+nnoremap <leader>w :echo nvim_treesitter#statusline(#{seperator: '->', indicator_size: 90}) <CR>
 " =============================================================================
 " # Autocommands
 " =============================================================================
