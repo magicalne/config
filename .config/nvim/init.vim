@@ -67,6 +67,8 @@ Plug 'f-person/git-blame.nvim'
 Plug 'folke/tokyonight.nvim', { 'branch': 'main' }
 Plug 'Yazeed1s/oh-lucy.nvim'
 
+Plug 'github/copilot.vim'
+
 call plug#end()
 
 if has('nvim')
@@ -126,23 +128,71 @@ require("nvim-autopairs").setup {
 }
 
 -- Setup nvim file icons
+
+local function open_nvim_tree(data)
+
+  -- buffer is a real file on the disk
+  local real_file = vim.fn.filereadable(data.file) == 1
+
+  -- buffer is a [No Name]
+  local no_name = data.file == "" and vim.bo[data.buf].buftype == ""
+
+  if not real_file and not no_name then
+    return
+  end
+
+end
 require("nvim-web-devicons").setup{ default = true }
+
 -- Setup nvim tree
+-- open the tree, find the file but don't focus it
+vim.api.nvim_create_autocmd("BufEnter", {
+  nested = true,
+  callback = function()
+    local api = require('nvim-tree.api')
+
+    -- Only 1 window with nvim-tree left: we probably closed a file buffer
+    if #vim.api.nvim_list_wins() == 1 and api.tree.is_tree_buf() then
+      -- Required to let the close event complete. An error is thrown without this.
+      vim.defer_fn(function()
+        -- close nvim-tree: will go to the last hidden buffer used before closing
+        api.tree.toggle({find_file = true, focus = true})
+        -- re-open nivm-tree
+        api.tree.toggle({find_file = true, focus = true})
+        -- nvim-tree is still the active window. Go to the previous window.
+        vim.cmd("wincmd p")
+      end, 0)
+    end
+  end
+})
+local function on_attach(bufnr)
+  local api = require('nvim-tree.api')
+
+  local function opts(desc)
+    return { desc = 'nvim-tree: ' .. desc, buffer = bufnr, noremap = true, silent = true, nowait = true }
+  end
+
+  api.config.mappings.default_on_attach(bufnr)
+
+  vim.keymap.set('n', '?', api.tree.toggle_help, opts('Help'))
+  vim.keymap.set('n', 'C', api.tree.change_root_to_node, opts('CD'))
+  vim.keymap.set('n', 'P', function()
+    local node = api.tree.get_node_under_cursor()
+    print(node.absolute_path)
+  end, opts('Print Node Path'))
+
+  vim.keymap.set('n', 'Z', api.node.run.system, opts('Run System'))
+
+  vim.api.nvim_create_autocmd({ "VimEnter" }, { callback = open_nvim_tree })
+end
 require("nvim-tree").setup({
+  on_attach = on_attach,
   sort_by = "case_sensitive",
-  view = {
-    adaptive_size = true,
-    mappings = {
-      list = {
-        { key = "u", action = "dir_up" },
-      },
-    },
-  },
   renderer = {
     group_empty = true,
   },
   filters = {
-    dotfiles = false,
+    dotfiles = true,
   },
   update_focused_file = {
     enable = true,
@@ -184,12 +234,12 @@ cmp.setup({
     end,
   },
   mapping = {
-    -- Tab immediately completes. C-n/C-p to select.
-    ['<Tab>'] = cmp.mapping.confirm({ select = true }),
-    ['<C-p>'] = cmp.mapping.select_prev_item(),
-    ['<C-n>'] = cmp.mapping.select_next_item(),
-    ['<C-k>'] = cmp.mapping.select_prev_item(),
-    ['<C-j>'] = cmp.mapping.select_next_item(),
+      -- Tab immediately completes. C-n/C-p to select.
+      ['<CR>'] = cmp.mapping.confirm({ select = true }),
+      ['<C-p>'] = cmp.mapping.select_prev_item(),
+      ['<C-n>'] = cmp.mapping.select_next_item(),
+      ['<C-k>'] = cmp.mapping.select_prev_item(),
+      ['<C-j>'] = cmp.mapping.select_next_item(),
   },
   sources = cmp.config.sources({
     -- TODO: currently snippets from lsp end up getting prioritized -- stop that!
@@ -317,7 +367,7 @@ lspconfig.pyright.setup{
 -- treesitter
 require'nvim-treesitter.configs'.setup {
   -- A list of parser names, or "all"
-  ensure_installed = { "c", "lua", "rust", "python", "typescript" },
+  ensure_installed = { "c", "lua", "rust", "python", "typescript", "solidity" },
 
   -- Install parsers synchronously (only applied to `ensure_installed`)
   sync_install = false,
@@ -464,9 +514,9 @@ let g:sneak#s_next = 1
 let g:vim_markdown_new_list_item_indent = 0
 let g:vim_markdown_auto_insert_bullets = 0
 let g:vim_markdown_frontmatter = 1
-set printfont=:h10
-set printencoding=utf-8
-set printoptions=paper:letter
+"set printfont=:h10
+"set printencoding=utf-8
+"set printoptions=paper:letter
 " Always draw sign column. Prevent buffer moving when adding/deleting sign.
 set signcolumn=yes
 
@@ -614,7 +664,7 @@ function! s:list_cmd()
   return base == '.' ? 'fd --type file --follow' : printf('fd --type file --follow | proximity-sort %s', shellescape(expand('%')))
 endfunction
 
-command! -bang -nargs=? -complete=dir Files
+command! -bang -nargs=? -complete=dir GFiles
   \ call fzf#vim#files(<q-args>, {'source': s:list_cmd(),
   \                               'options': ['--tiebreak=index', '--info=inline', '--preview', 'cat {}']}, <bang>0)
 
