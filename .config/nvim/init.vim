@@ -66,6 +66,7 @@ Plug 'f-person/git-blame.nvim'
 " Theme
 Plug 'folke/tokyonight.nvim', { 'branch': 'main' }
 Plug 'Yazeed1s/oh-lucy.nvim'
+Plug 'catppuccin/nvim', { 'as': 'catppuccin' }
 
 Plug 'github/copilot.vim'
 
@@ -114,14 +115,17 @@ vim.g.tokyonight_sidebars = { "qf", "vista_kind", "terminal", "packer" }
 vim.g.tokyonight_colors = { hint = "orange", error = "#f00056" }
 
 -- Load the colorscheme
-vim.cmd[[colorscheme tokyonight-night]]
+-- vim.cmd[[colorscheme tokyonight-night]]
 -- vim.cmd[[colorscheme tokyonight-storm]]
 -- vim.cmd[[colorscheme tokyonight-storm]]
 -- vim.cmd[[colorscheme tokyonight-day]]
 
 -- vim.cmd[[colorscheme oh-lucy]] -- for oh-lucy
 
-
+-- vim.cmd.colorscheme "catppuccin-latte"
+-- vim.cmd.colorscheme "catppuccin-frappe"
+-- vim.cmd.colorscheme "catppuccin-macchiato"
+vim.cmd.colorscheme "catppuccin"
 
 -- Setup auto-pair
 require("nvim-autopairs").setup {
@@ -173,7 +177,30 @@ local function on_attach(bufnr)
   end
 
   api.config.mappings.default_on_attach(bufnr)
+  local function edit_or_open()
+    local node = api.tree.get_node_under_cursor()
+  
+    if node.nodes ~= nil then
+      -- expand or collapse folder
+      api.node.open.edit()
+    else
+      -- open file
+      api.node.open.edit()
+      -- Close the tree if file was opened
+      api.tree.close()
+    end
+  end
+  -- open as vsplit on current node
+  local function vsplit_preview()
+    api.node.open.edit()
+    -- Finally refocus on tree if it was lost
+    api.tree.focus()
+  end
 
+  vim.keymap.set("n", "l", edit_or_open,          opts("Edit Or Open"))
+  vim.keymap.set("n", "L", vsplit_preview,        opts("Vsplit Preview"))
+  vim.keymap.set("n", "h", api.tree.close,        opts("Close"))
+  vim.keymap.set("n", "H", api.tree.collapse_all, opts("Collapse All"))
   vim.keymap.set('n', '?', api.tree.toggle_help, opts('Help'))
   vim.keymap.set('n', 'C', api.tree.change_root_to_node, opts('CD'))
   vim.keymap.set('n', 'P', function()
@@ -192,10 +219,15 @@ require("nvim-tree").setup({
     group_empty = true,
   },
   filters = {
-    dotfiles = true,
+    dotfiles = false,
   },
   update_focused_file = {
     enable = true,
+  },
+  git = {
+    enable = true,
+    ignore = false,
+    timeout = 500,
   }
 })
 
@@ -333,7 +365,7 @@ lspconfig.rust_analyzer.setup {
         allFeatures = true,
 	    loadOutDirsFromCheck = true,
       },
-      procMacro = { enable = true, },
+      -- procMacro = { enable = true, },
       completion = { postfix = { enable = true, }, },
     },
   },
@@ -428,6 +460,7 @@ let g:secure_modelines_allowed_items = [
 
 " Lightline
 let g:lightline = {
+      \ 'colorscheme': 'catppuccin',
       \ 'enable': {
           \ 'tabline': 0,
       \ },
@@ -731,7 +764,7 @@ xnoremap <leader>d "_d
 xnoremap <leader>p "_dP
 
 " Context of the current line.
-nnoremap <leader>w :echo nvim_treesitter#statusline(#{seperator: '->', indicator_size: 90}) <CR>
+nnoremap <leader>cc :echo nvim_treesitter#statusline(#{seperator: '->', indicator_size: 90}) <CR>
 " =============================================================================
 " # Autocommands
 " =============================================================================
