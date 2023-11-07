@@ -35,6 +35,8 @@ Plug 'lukas-reineke/indent-blankline.nvim'
 " Plug 'airblade/vim-rooter'
 Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
 Plug 'junegunn/fzf.vim'
+Plug 'nvim-telescope/telescope.nvim', { 'tag': '0.1.3' }
+Plug 'nvim-lua/plenary.nvim'
 
 " Semantic language support
 Plug 'neovim/nvim-lspconfig'
@@ -313,6 +315,7 @@ cmp.event:on(
 
 
 -- Setup lspconfig.
+local builtin = require('telescope.builtin')
 local on_attach = function(client, bufnr)
   local function buf_set_keymap(...) vim.api.nvim_buf_set_keymap(bufnr, ...) end
   local function buf_set_option(...) vim.api.nvim_buf_set_option(bufnr, ...) end
@@ -337,8 +340,8 @@ local on_attach = function(client, bufnr)
   buf_set_keymap('n', '[d', '<cmd>lua vim.diagnostic.goto_prev()<CR>', opts)
   buf_set_keymap('n', ']d', '<cmd>lua vim.diagnostic.goto_next()<CR>', opts)
   buf_set_keymap('n', '<space>q', '<cmd>lua vim.diagnostic.set_loclist()<CR>', opts)
-  buf_set_keymap("n", "<space>f", "<cmd>lua vim.lsp.buf.formatting()<CR>", opts)
-  buf_set_keymap("n", "<space>l", "<cmd>lua vim.lsp.buf.document_symbol()<CR>", opts)
+  buf_set_keymap("n", "<space>f", "<cmd>lua vim.lsp.buf.format()<CR>", opts)
+  buf_set_keymap("n", "<space>l", "<cmd>lua require('telescope.builtin').lsp_document_symbols()<CR>", opts)
 
   -- Get signatures (and _only_ signatures) when in argument lists.
   require "lsp_signature".on_attach({
@@ -413,14 +416,31 @@ local function get_python_path(workspace)
 end
 
 lspconfig.pyright.setup{
-  on_attach = function()
-      require'lsp_signature'.on_attach {
-          hint_enable = false,
-      }
-  end,
+  capabilities = capabilities,
+--  on_attach = function(client)
+--      client.server_capabilities.completionProvider = false
+--  end,
+  on_attach = on_attach,
+  -- on_attach = function()
+  --     require'lsp_signature'.on_attach {
+  --         hint_enable = false,
+  --     }
+  -- end,
   on_init = function(client)
       client.config.settings.python.pythonPath = get_python_path(client.config.root_dir)
   end
+}
+
+-- ruff
+require('lspconfig').ruff_lsp.setup {
+  capabilities = capabilities,
+  on_attach = on_attach,
+  init_options = {
+    settings = {
+      -- Any extra CLI arguments for `ruff` go here.
+      args = {},
+    }
+  }
 }
 
 -- treesitter
@@ -466,6 +486,17 @@ require("indent_blankline").setup {
   show_current_context = true,
   show_end_of_line = true
 }
+
+local actions = require "telescope.actions"
+require('telescope').setup {
+    mappings = {
+        i = {
+            --["<C-j>"] = actions.move_selection_next,
+            --["<C-k>"] = actions.move_selection_previous,
+        },
+    }
+}
+
 END
 
 " Enable type inlay hints

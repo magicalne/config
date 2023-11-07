@@ -20,6 +20,10 @@
 - exa
 - fd-find
 
+### pip
+- pyright
+- ruff
+
 ### fonts
 
 Need [nerd fonts](https://www.nerdfonts.com/font-downloads)
