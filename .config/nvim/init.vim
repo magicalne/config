@@ -35,7 +35,7 @@ Plug 'lukas-reineke/indent-blankline.nvim'
 " Plug 'airblade/vim-rooter'
 Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
 Plug 'junegunn/fzf.vim'
-Plug 'nvim-telescope/telescope.nvim', { 'tag': '0.1.3' }
+Plug 'nvim-telescope/telescope.nvim', { 'branch': '0.1.x' }
 Plug 'nvim-lua/plenary.nvim'
 
 " Semantic language support
@@ -236,25 +236,26 @@ require("nvim-tree").setup({
 vim.opt.termguicolors = true
 -- Setup bufferline
 require("bufferline").setup {
-	options = {
-		mode = "buffers",
-		numbers = "buffer_id",
-		indicator = {
-                    icon = '| ',
-                    style = 'underline',
-                },
-		buffer_close_icon = '',
-    	        modified_icon = '●',
-		close_icon = '',
-		left_trunc_marker = '',
-		right_trunc_marker = '',
-		diagnostics = "nvim_lsp",
-		color_icons = true,
-		show_buffer_icons = true, -- disable filetype icons for buffers
-    	        show_buffer_default_icon = true, -- whether or not an unrecognised filetype should show a default icon
-		show_buffer_close_icons = false,
-    	        show_close_icon = false,
-	},
+    options = {
+        mode = "buffers",
+        -- numbers = "buffer_id",
+        indicator = {
+            icon = '| ',
+            style = 'underline',
+        },
+        buffer_close_icon = '',
+        modified_icon = '●',
+        close_icon = '',
+        left_trunc_marker = '',
+        right_trunc_marker = '',
+        diagnostics = "nvim_lsp",
+        color_icons = true,
+        show_buffer_icons = true, -- disable filetype icons for buffers
+        show_buffer_default_icon = true, -- whether or not an unrecognised filetype should show a default icon
+        show_buffer_close_icons = false,
+        show_close_icon = false,
+        --sort_by = 'insert_after_current' -- |'insert_at_end' | 'id' | 'extension' | 'relative_directory' | 'directory' | 'tabs' | function(buffer_a, buffer_b)
+    },
 }
 
 local cmp = require'cmp'
@@ -345,6 +346,7 @@ local on_attach = function(client, bufnr)
 
   -- Get signatures (and _only_ signatures) when in argument lists.
   require "lsp_signature".on_attach({
+    hint_enable = true,
     doc_lines = 0,
     handler_opts = {
       border = "none"
@@ -364,9 +366,12 @@ lspconfig.rust_analyzer.setup {
   },
   settings = {
     ["rust-analyzer"] = {
+      checkOnSave = {
+          command = "clippy"
+      },
       cargo = {
-        allFeatures = true,
-	    loadOutDirsFromCheck = true,
+        features = "all",
+	loadOutDirsFromCheck = true,
       },
       -- procMacro = { enable = true, },
       completion = { postfix = { enable = true, }, },
@@ -496,7 +501,7 @@ require('telescope').setup {
 END
 
 " Enable type inlay hints
-autocmd CursorHold,CursorHoldI *.rs :lua require'lsp_extensions'.inlay_hints{ only_current_line = true }
+" autocmd CursorHold,CursorHoldI *.rs :lua require'lsp_extensions'.inlay_hints{ only_current_line = true }
 
 " Plugin settings
 let g:secure_modelines_allowed_items = [
