@@ -9,7 +9,7 @@ export ZSH="$HOME/.oh-my-zsh"
 # to know which specific one was loaded, run: echo $RANDOM_THEME
 # See https://github.com/ohmyzsh/ohmyzsh/wiki/Themes
 # ZSH_THEME="agnoster"
-ZSH_THEME="robbyrussell"
+ZSH_THEME="agnoster"
 
 # Set list of themes to pick from when loading at random
 # Setting this variable when ZSH_THEME=random will cause zsh to load
@@ -78,8 +78,8 @@ plugins=(
 	fzf
 	vi-mode
 )
+export FPATH="/usr/share/zsh/5.9/functions:$FPATH"
 
-source ~/.profile
 source $ZSH/oh-my-zsh.sh
 
 # User configuration
@@ -117,3 +117,28 @@ export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
 
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+source ~/.profile
+
+# current folder only
+prompt_dir() {
+  prompt_segment blue $CURRENT_FG '%c'
+}
+
+ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE='fg=4'
+
+
+# >>> conda initialize >>>
+# !! Contents within this block are managed by 'conda init' !!
+__conda_setup="$('/home/magicalne/ssd/apps/miniconda3/bin/conda' 'shell.zsh' 'hook' 2> /dev/null)"
+if [ $? -eq 0 ]; then
+    eval "$__conda_setup"
+else
+    if [ -f "/home/magicalne/ssd/apps/miniconda3/etc/profile.d/conda.sh" ]; then
+        . "/home/magicalne/ssd/apps/miniconda3/etc/profile.d/conda.sh"
+    else
+        export PATH="/home/magicalne/ssd/apps/miniconda3/bin:$PATH"
+    fi
+fi
+unset __conda_setup
+# <<< conda initialize <<<
+eval "$(starship init zsh)"

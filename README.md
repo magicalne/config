@@ -4,6 +4,7 @@
 - zsh
 - tmux
 - nvim
+- [startship](https://starship.rs/)
 
 ## bins
 
@@ -31,3 +32,14 @@ Need [nerd fonts](https://www.nerdfonts.com/font-downloads)
 Other amazing fonts:
 
 - [monego](https://github.com/cseelus/monego)
+
+## startship
+
+### Install
+
+```shell
+curl -sS https://starship.rs/install.sh | sh
+```
+
+Find more themes: https://starship.rs/presets/
+
