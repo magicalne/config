@@ -21,6 +21,7 @@ Plug 'justinmk/vim-sneak'
 Plug 'windwp/nvim-autopairs'
 Plug 'windwp/nvim-ts-autotag'
 Plug 'terryma/vim-expand-region'
+Plug 'folke/todo-comments.nvim'
 
 " GUI enhancements
 Plug 'itchyny/lightline.vim'
@@ -498,6 +499,17 @@ require('telescope').setup {
     }
 }
 
+-- todo-comments
+require('todo-comments').setup {}
+
+vim.keymap.set("n", "]t", function()
+  require("todo-comments").jump_next()
+end, { desc = "Next todo comment" })
+
+vim.keymap.set("n", "[t", function()
+  require("todo-comments").jump_prev()
+end, { desc = "Previous todo comment" })
+
 END
 
 " Enable type inlay hints
@@ -785,6 +797,8 @@ inoremap <right> <nop>
 " Left and right can switch buffers
 nnoremap <left> :bp<CR>
 nnoremap <right> :bn<CR>
+nnoremap <S-tab> :bp<CR>
+nnoremap <tab> :bn<CR>
 
 " Move by line
 nnoremap j gj
