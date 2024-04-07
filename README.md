@@ -43,3 +43,8 @@ curl -sS https://starship.rs/install.sh | sh
 
 Find more themes: https://starship.rs/presets/
 
+## tmux plugin init
+
+```sh
+git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
+```
