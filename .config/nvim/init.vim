@@ -29,7 +29,8 @@ Plug 'machakann/vim-highlightedyank'
 Plug 'andymass/vim-matchup'
 Plug 'kyazdani42/nvim-web-devicons' " optional, for file icons
 Plug 'kyazdani42/nvim-tree.lua'
-Plug 'akinsho/bufferline.nvim', { 'tag': 'v2.*' }
+Plug 'akinsho/bufferline.nvim', { 'commit': '73540cb' }
+Plug 'ThePrimeagen/harpoon', { 'branch': 'harpoon2' }
 Plug 'lukas-reineke/indent-blankline.nvim'
 
 " Fuzzy finder
@@ -252,12 +253,35 @@ require("bufferline").setup {
         diagnostics = "nvim_lsp",
         color_icons = true,
         show_buffer_icons = true, -- disable filetype icons for buffers
-        show_buffer_default_icon = true, -- whether or not an unrecognised filetype should show a default icon
         show_buffer_close_icons = false,
         show_close_icon = false,
+        numbers = function(number_opts)
+            local harpoon = require("harpoon.mark")
+	    local buf_name = vim.api.nvim_buf_get_name(number_opts.id)
+	    local harpoon_mark = harpoon.get_index_of(buf_name)
+	    return harpoon_mark
+	end,
         --sort_by = 'insert_after_current' -- |'insert_at_end' | 'id' | 'extension' | 'relative_directory' | 'directory' | 'tabs' | function(buffer_a, buffer_b)
     },
 }
+local harpoon = require("harpoon")
+
+-- REQUIRED
+harpoon:setup()
+-- REQUIRED
+
+vim.keymap.set("n", "<leader>qq", function() harpoon:list():add() end)
+vim.keymap.set("n", "<space>e", function() harpoon.ui:toggle_quick_menu(harpoon:list()) end)
+
+vim.keymap.set("n", "<space>1", function() harpoon:list():select(1) end)
+vim.keymap.set("n", "<space>2", function() harpoon:list():select(2) end)
+vim.keymap.set("n", "<space>3", function() harpoon:list():select(3) end)
+vim.keymap.set("n", "<space>4", function() harpoon:list():select(4) end)
+vim.keymap.set("n", "<space>5", function() harpoon:list():select(5) end)
+
+-- Toggle previous & next buffers stored within Harpoon list
+vim.keymap.set("n", "<space>p", function() harpoon:list():prev() end)
+vim.keymap.set("n", "<space>n", function() harpoon:list():next() end)
 
 local cmp = require'cmp'
 
@@ -338,13 +362,12 @@ local on_attach = function(client, bufnr)
   buf_set_keymap('n', '<space>r', '<cmd>lua vim.lsp.buf.rename()<CR>', opts)
   buf_set_keymap('n', '<space>a', '<cmd>lua vim.lsp.buf.code_action()<CR>', opts)
   buf_set_keymap('n', 'gr', '<cmd>lua vim.lsp.buf.references()<CR>', opts)
-  buf_set_keymap('n', '<space>e', '<cmd>lua vim.diagnostic.open_float()<CR>', opts)
+  buf_set_keymap('n', '<space>E', '<cmd>lua vim.diagnostic.open_float()<CR>', opts)
   buf_set_keymap('n', '[d', '<cmd>lua vim.diagnostic.goto_prev()<CR>', opts)
   buf_set_keymap('n', ']d', '<cmd>lua vim.diagnostic.goto_next()<CR>', opts)
   buf_set_keymap('n', '<space>q', '<cmd>lua vim.diagnostic.set_loclist()<CR>', opts)
   buf_set_keymap("n", "<space>f", "<cmd>lua vim.lsp.buf.format()<CR>", opts)
   buf_set_keymap("n", "<space>l", "<cmd>lua require('telescope.builtin').lsp_document_symbols()<CR>", opts)
-
   -- Get signatures (and _only_ signatures) when in argument lists.
   require "lsp_signature".on_attach({
     hint_enable = true,
@@ -354,6 +377,18 @@ local on_attach = function(client, bufnr)
     },
   })
 end
+
+-- Inlay hint
+vim.api.nvim_create_autocmd("LspAttach", {
+    group = vim.api.nvim_create_augroup("UserLspConfig", {}),
+    callback = function(args)
+        local client = vim.lsp.get_client_by_id(args.data.client_id)
+        if client.server_capabilities.inlayHintProvider then
+            vim.lsp.inlay_hint.enable(true)
+        end
+        -- whatever other lsp config you want
+    end
+})
 
 -- Auto close quickfix buffer opened by lspconfig.
 local autocmd = vim.api.nvim_create_autocmd
@@ -511,9 +546,6 @@ vim.keymap.set("n", "[t", function()
 end, { desc = "Previous todo comment" })
 
 END
-
-" Enable type inlay hints
-" autocmd CursorHold,CursorHoldI *.rs :lua require'lsp_extensions'.inlay_hints{ only_current_line = true }
 
 " Plugin settings
 let g:secure_modelines_allowed_items = [
