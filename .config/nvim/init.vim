@@ -72,7 +72,7 @@ Plug 'folke/tokyonight.nvim', { 'branch': 'main' }
 Plug 'Yazeed1s/oh-lucy.nvim'
 Plug 'catppuccin/nvim', { 'as': 'catppuccin' }
 
-Plug 'github/copilot.vim'
+Plug 'TabbyML/vim-tabby'
 
 call plug#end()
 
@@ -117,6 +117,13 @@ vim.g.tokyonight_sidebars = { "qf", "vista_kind", "terminal", "packer" }
 
 -- Change the "hint" color to the "orange" color, and make the "error" color bright red
 vim.g.tokyonight_colors = { hint = "orange", error = "#f00056" }
+
+-- Setup tabby
+vim.g.tabby_trigger_mode = 'manual'
+vim.g.tabby_keybinding_accept = '<Tab>'
+vim.g.tabby_keybinding_trigger_or_dismiss = '<C-\\>'
+
+
 
 -- Load the colorscheme
 -- vim.cmd[[colorscheme tokyonight-night]]
