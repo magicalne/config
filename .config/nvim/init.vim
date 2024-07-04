@@ -72,8 +72,7 @@ Plug 'folke/tokyonight.nvim', { 'branch': 'main' }
 Plug 'Yazeed1s/oh-lucy.nvim'
 Plug 'catppuccin/nvim', { 'as': 'catppuccin' }
 
-Plug 'TabbyML/vim-tabby'
-
+Plug '/home/magicalne/ssd/git/opensource/fim.nvim'
 call plug#end()
 
 if has('nvim')
@@ -112,18 +111,11 @@ lua << END
 
 -- Setup theme
 -- vim.g.tokyonight_style = "night" -- storm or day
-vim.g.tokyonight_italic_functions = true
-vim.g.tokyonight_sidebars = { "qf", "vista_kind", "terminal", "packer" }
+-- vim.g.tokyonight_italic_functions = true
+-- vim.g.tokyonight_sidebars = { "qf", "vista_kind", "terminal", "packer" }
 
 -- Change the "hint" color to the "orange" color, and make the "error" color bright red
-vim.g.tokyonight_colors = { hint = "orange", error = "#f00056" }
-
--- Setup tabby
-vim.g.tabby_trigger_mode = 'manual'
-vim.g.tabby_keybinding_accept = '<Tab>'
-vim.g.tabby_keybinding_trigger_or_dismiss = '<C-\\>'
-
-
+-- vim.g.tokyonight_colors = { hint = "orange", error = "#f00056" }
 
 -- Load the colorscheme
 -- vim.cmd[[colorscheme tokyonight-night]]
@@ -140,6 +132,8 @@ vim.cmd.colorscheme "catppuccin"
 
 -- Setup auto-pair
 require("nvim-autopairs").setup {
+    -- M-e to trigger fast wrap
+    fast_wrap = {},
 }
 
 -- Setup nvim file icons
@@ -525,6 +519,10 @@ require'nvim-treesitter.configs'.setup {
   autotag = { enable = true, }
 }
 
+require('fim').setup({
+        model = "codellama:7b-code",
+        template = "<PRE> %s <SUF>%s <MID>",
+})
 -- indent-blankline
 vim.opt.list = true
 -- vim.opt.listchars:append "space:⋅"
@@ -736,7 +734,7 @@ set diffopt+=iwhite " No whitespace in vimdiff
 " Make diffing better: https://vimways.org/2018/the-power-of-diff/
 set diffopt+=algorithm:patience
 set diffopt+=indent-heuristic
-set colorcolumn=80 " and give me a colored column
+set colorcolumn=120 " and give me a colored column
 set showcmd " Show (partial) command in status line.
 set mouse=a " Enable mouse usage (all modes) in terminals
 set shortmess+=c " don't give |ins-completion-menu| messages.
@@ -797,7 +795,7 @@ noremap <leader>s :Rg
 let g:fzf_layout = { 'window': { 'width': 0.9, 'height': 0.6 } } 
 command! -bang -nargs=* Rg
   \ call fzf#vim#grep(
-  \   'rg --column --line-number --no-heading --color=always '.shellescape(<q-args>), 1,
+  \   'rg -i --column --line-number --no-heading --color=always '.shellescape(<q-args>), 1,
   \   <bang>0 ? fzf#vim#with_preview('up:60%')
   \           : fzf#vim#with_preview('right:50%:hidden', '?'),
   \   <bang>0)
@@ -896,7 +894,7 @@ endif
 
 " Follow Rust code style rules
 au Filetype rust source ~/.config/nvim/scripts/spacetab.vim
-au Filetype rust set colorcolumn=100
+au Filetype rust set colorcolumn=120
 
 " C code style
 au Filetype cpp setlocal shiftwidth=2 softtabstop=2 tabstop=2 expandtab
