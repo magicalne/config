@@ -72,7 +72,8 @@ Plug 'folke/tokyonight.nvim', { 'branch': 'main' }
 Plug 'Yazeed1s/oh-lucy.nvim'
 Plug 'catppuccin/nvim', { 'as': 'catppuccin' }
 
-Plug '/home/magicalne/ssd/git/opensource/fim.nvim'
+" Plug '/home/magicalne/ssd/git/opensource/fim.nvim'
+Plug '/home/magicalne/workspace/opensource/fim.nvim'
 call plug#end()
 
 if has('nvim')
@@ -313,10 +314,22 @@ cmp.setup({
       ['<C-n>'] = cmp.mapping.select_next_item(),
       ['<C-k>'] = cmp.mapping.select_prev_item(),
       ['<C-j>'] = cmp.mapping.select_next_item(),
+      ['<C-x>'] = cmp.mapping(
+          cmp.mapping.complete({
+            config = {
+              sources = cmp.config.sources({
+                { name = 'fim' },
+              }),
+            },
+          }),
+          { 'i' }
+    ),
   },
   sources = cmp.config.sources({
     -- TODO: currently snippets from lsp end up getting prioritized -- stop that!
     { name = 'nvim_lsp' },
+    { name = 'vsnip' },
+    -- { name = 'fim'},
   }, {
     { name = 'path' },
   }),
@@ -374,7 +387,7 @@ local on_attach = function(client, bufnr)
   buf_set_keymap('n', '<space>D', '<cmd>lua vim.lsp.buf.type_definition()<CR>', opts)
   buf_set_keymap('n', '<space>r', '<cmd>lua vim.lsp.buf.rename()<CR>', opts)
   buf_set_keymap('n', '<space>a', '<cmd>lua vim.lsp.buf.code_action()<CR>', opts)
-  buf_set_keymap('n', 'gr', '<cmd>lua vim.lsp.buf.references()<CR>', opts)
+  buf_set_keymap("n", "gr", "<cmd>lua require('telescope.builtin').lsp_references()<CR>", opts)
   buf_set_keymap('n', '<space>E', '<cmd>lua vim.diagnostic.open_float()<CR>', opts)
   buf_set_keymap('n', '[d', '<cmd>lua vim.diagnostic.goto_prev()<CR>', opts)
   buf_set_keymap('n', ']d', '<cmd>lua vim.diagnostic.goto_next()<CR>', opts)
@@ -531,9 +544,24 @@ require'nvim-treesitter.configs'.setup {
   autotag = { enable = true, }
 }
 
-require('fim').setup({
-        model = "codellama:7b-code",
-        template = "<PRE> %s <SUF>%s <MID>",
+local fim = require('fim.config')
+fim:setup({
+  max_lines = 100,
+  provider = 'Ollama',
+  provider_options = {
+    model = 'starcoder2:7b',
+    -- model = 'llama3.1',
+  },
+  notify = true,
+  notify_callback = function(msg)
+    vim.notify(msg)
+  end,
+  run_on_every_keystroke = false,
+  ignored_file_types = {
+    -- default is not to ignore
+    -- uncomment to ignore in lua:
+    -- lua = true
+  },
 })
 -- indent-blankline
 vim.opt.list = true
