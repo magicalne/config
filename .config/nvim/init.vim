@@ -29,6 +29,7 @@ Plug 'machakann/vim-highlightedyank'
 Plug 'andymass/vim-matchup'
 Plug 'kyazdani42/nvim-web-devicons' " optional, for file icons
 Plug 'kyazdani42/nvim-tree.lua'
+Plug 'stevearc/oil.nvim'
 Plug 'akinsho/bufferline.nvim', { 'commit': '73540cb' }
 Plug 'ThePrimeagen/harpoon', { 'branch': 'harpoon2' }
 Plug 'lukas-reineke/indent-blankline.nvim'
@@ -63,17 +64,17 @@ Plug 'rhysd/vim-clang-format'
 Plug 'dag/vim-fish'
 Plug 'godlygeek/tabular'
 Plug 'plasticboy/vim-markdown'
+Plug 'folke/lazydev.nvim'
 
 " git
 Plug 'f-person/git-blame.nvim'
 
 " Theme
-Plug 'folke/tokyonight.nvim', { 'branch': 'main' }
-Plug 'Yazeed1s/oh-lucy.nvim'
 Plug 'catppuccin/nvim', { 'as': 'catppuccin' }
 
-" Plug '/home/magicalne/ssd/git/opensource/fim.nvim'
-Plug '/home/magicalne/workspace/opensource/fim.nvim'
+Plug '/home/magicalne/ssd/git/opensource/fim.nvim'
+Plug '/home/magicalne/ssd/git/opensource/nvim.ai'
+"Plug 'magicalne/nvim.ai', { 'branch': 'main' }
 call plug#end()
 
 if has('nvim')
@@ -82,18 +83,13 @@ if has('nvim')
     noremap <C-q> :confirm qall<CR>
 end
 
-" deal with colors
-if !has('gui_running')
-  set t_Co=256
+
+if exists('+termguicolors')
+ let &t_8f = "\<Esc>[38;2;%lu;%lu;%lum"
+ let &t_8b = "\<Esc>[48;2;%lu;%lu;%lum"
+ set termguicolors
 endif
-if (match($TERM, "-256color") != -1) && (match($TERM, "screen-256color") == -1)
-  " screen does not (yet) support truecolor
-  set termguicolors
-endif
-"set background=dark
-let base16colorspace=256
-"let g:base16_shell_path="~/dev/others/base16/templates/shell/scripts/"
-"colorscheme base16-gruvbox-dark-hard
+
 syntax on
 hi Normal ctermbg=NONE
 
@@ -109,22 +105,6 @@ hi Normal ctermbg=NONE
 
 " LSP configuration
 lua << END
-
--- Setup theme
--- vim.g.tokyonight_style = "night" -- storm or day
--- vim.g.tokyonight_italic_functions = true
--- vim.g.tokyonight_sidebars = { "qf", "vista_kind", "terminal", "packer" }
-
--- Change the "hint" color to the "orange" color, and make the "error" color bright red
--- vim.g.tokyonight_colors = { hint = "orange", error = "#f00056" }
-
--- Load the colorscheme
--- vim.cmd[[colorscheme tokyonight-night]]
--- vim.cmd[[colorscheme tokyonight-storm]]
--- vim.cmd[[colorscheme tokyonight-storm]]
--- vim.cmd[[colorscheme tokyonight-day]]
-
--- vim.cmd[[colorscheme oh-lucy]] -- for oh-lucy
 
 -- vim.cmd.colorscheme "catppuccin-latte"
 -- vim.cmd.colorscheme "catppuccin-frappe"
@@ -249,6 +229,14 @@ require("nvim-tree").setup({
   }
 })
 
+require("oil").setup({
+view_options = {
+  show_hidden = true,
+}
+})
+
+vim.keymap.set("n", "-", "<CMD>Oil<CR>", { desc = "Open parent directory" })
+
 vim.opt.termguicolors = true
 -- Setup bufferline
 require("bufferline").setup {
@@ -318,7 +306,7 @@ cmp.setup({
           cmp.mapping.complete({
             config = {
               sources = cmp.config.sources({
-                { name = 'fim' },
+                --{ name = 'fim' },
               }),
             },
           }),
@@ -327,9 +315,9 @@ cmp.setup({
   },
   sources = cmp.config.sources({
     -- TODO: currently snippets from lsp end up getting prioritized -- stop that!
+    { name = 'lazydev', group_index = 0, },
     { name = 'nvim_lsp' },
     { name = 'vsnip' },
-    -- { name = 'fim'},
   }, {
     { name = 'path' },
   }),
@@ -387,7 +375,7 @@ local on_attach = function(client, bufnr)
   buf_set_keymap('n', '<space>D', '<cmd>lua vim.lsp.buf.type_definition()<CR>', opts)
   buf_set_keymap('n', '<space>r', '<cmd>lua vim.lsp.buf.rename()<CR>', opts)
   buf_set_keymap('n', '<space>a', '<cmd>lua vim.lsp.buf.code_action()<CR>', opts)
-  buf_set_keymap("n", "gr", "<cmd>lua require('telescope.builtin').lsp_references()<CR>", opts)
+  buf_set_keymap('n', 'gr', '<cmd>lua vim.lsp.buf.references()<CR>', opts)
   buf_set_keymap('n', '<space>E', '<cmd>lua vim.diagnostic.open_float()<CR>', opts)
   buf_set_keymap('n', '[d', '<cmd>lua vim.diagnostic.goto_prev()<CR>', opts)
   buf_set_keymap('n', ']d', '<cmd>lua vim.diagnostic.goto_next()<CR>', opts)
@@ -449,7 +437,7 @@ lspconfig.gopls.setup {
   on_attach = on_attach,
   capabilities = capabilities,
 }
-require'lspconfig'.tsserver.setup{
+require'lspconfig'.ts_ls.setup{
   on_attach = on_attach,
   capabilities = capabilities,
 }
@@ -499,7 +487,7 @@ lspconfig.pyright.setup{
 }
 
 -- ruff
-require('lspconfig').ruff_lsp.setup {
+require('lspconfig').ruff.setup {
   capabilities = capabilities,
   on_attach = on_attach,
   init_options = {
@@ -509,6 +497,18 @@ require('lspconfig').ruff_lsp.setup {
     }
   }
 }
+
+require('lazydev').setup({
+  capabilities = capabilities,
+  on_attach = on_attach,
+  init_options = {
+    settings = {
+      -- Any extra CLI arguments for `ruff` go here.
+      args = {},
+    }
+  }
+
+})
 
 -- treesitter
 require'nvim-treesitter.configs'.setup {
@@ -540,29 +540,81 @@ require'nvim-treesitter.configs'.setup {
     -- Instead of true it can also be a list of languages
     additional_vim_regex_highlighting = false,
   },
+  incremental_selection = {
+    enable = true,
+    keymaps = {
+      init_selection = "gnn", -- set to `false` to disable one of the mappings
+      node_incremental = "grn",
+      scope_incremental = "grc",
+      node_decremental = "grm",
+    },
+  },
   -- nvim-ts-autotag
   autotag = { enable = true, }
 }
 
-local fim = require('fim.config')
-fim:setup({
-  max_lines = 100,
-  provider = 'Ollama',
-  provider_options = {
-    model = 'starcoder2:7b',
-    -- model = 'llama3.1',
+-- local fim = require('fim.config')
+-- fim:setup({
+--   max_lines = 100,
+--   provider = 'Ollama',
+--   provider_options = {
+--     model = 'starcoder2:3b',
+--     -- model = 'llama3.1',
+--   },
+--   notify = true,
+--   notify_callback = function(msg)
+--     vim.notify(msg)
+--   end,
+--   run_on_every_keystroke = false,
+--   ignored_file_types = {
+--     -- default is not to ignore
+--     -- uncomment to ignore in lua:
+--     -- lua = true
+--   },
+-- })
+
+local ai = require('ai')
+ai.setup({
+debug=false,
+ui = {
+    width = "40%",
+    },
+  --provider = "ollama",
+  --provider = "snova",
+  --provider = "hyperbolic",
+  --provider = "cerebras",
+  --provider = "groq",
+  --provider = "gemini",
+  --provider = "mistral",
+  --provider = "anthropic",
+  provider = "deepseek",
+  --provider = "cohere",
+  deepseek = {
+    model = "deepseek-coder",
   },
-  notify = true,
-  notify_callback = function(msg)
-    vim.notify(msg)
-  end,
-  run_on_every_keystroke = false,
-  ignored_file_types = {
-    -- default is not to ignore
-    -- uncomment to ignore in lua:
-    -- lua = true
+  mistral = {
+    model = "mistral-large-latest"
+    --model = "mistral-small-latest"
   },
+  gemini = {
+    model = "gemini-1.5-pro-latest"
+  },
+  hyperbolic = {
+    model = "mattshumer/Reflection-Llama-3.1-70B",
+    temperature = 0.7,
+  },
+  cerebras = {
+    model = "llama3.1-70b",
+  },
+  ollama = {
+    model = "yi-coder:9b",
+    --model = "codestral",
+    --model = "llama3.1"
+    --model = "llama3.1:70b",
+    endpoint = "http://192.168.2.47:11434",
+  }
 })
+
 -- indent-blankline
 vim.opt.list = true
 -- vim.opt.listchars:append "space:⋅"
@@ -713,7 +765,7 @@ set splitbelow
 set undodir=~/.vimdid
 set undofile
 
-" Decent wildmenu
+" Decent wildmen
 set wildmenu
 set wildmode=list:longest
 set wildignore=.hg,.svn,*~,*.png,*.jpg,*.gif,*.settings,Thumbs.db,*.min.js,*.swp,publish/*,intermediate/*,*.o,*.hi,Zend,vendor
@@ -915,6 +967,9 @@ xnoremap <leader>p "_dP
 
 " Context of the current line.
 nnoremap <leader>cc :echo nvim_treesitter#statusline(#{seperator: '->', indicator_size: 90}) <CR>
+
+" Spell check
+nnoremap <leader>sp :setlocal spell spelllang=en_us<CR>
 " =============================================================================
 " # Autocommands
 " =============================================================================
@@ -950,6 +1005,9 @@ autocmd BufRead *.xlsx.axlsx set filetype=ruby
 
 " Script plugins
 autocmd Filetype html,xml,xsl,php source ~/.config/nvim/scripts/closetag.vim
+" Markdown spell check
+autocmd FileType markdown setlocal spell
+autocmd FileType lua,vim setlocal shiftwidth=2 softtabstop=2 expandtab
 
 " =============================================================================
 " # Footer
