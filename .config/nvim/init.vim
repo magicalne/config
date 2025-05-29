@@ -30,7 +30,7 @@ Plug 'andymass/vim-matchup'
 Plug 'kyazdani42/nvim-web-devicons' " optional, for file icons
 Plug 'kyazdani42/nvim-tree.lua'
 Plug 'stevearc/oil.nvim'
-Plug 'akinsho/bufferline.nvim', { 'commit': '73540cb' }
+Plug 'akinsho/bufferline.nvim', { 'tag': '*' }
 Plug 'ThePrimeagen/harpoon', { 'branch': 'harpoon2' }
 Plug 'lukas-reineke/indent-blankline.nvim'
 
@@ -73,8 +73,8 @@ Plug 'f-person/git-blame.nvim'
 Plug 'catppuccin/nvim', { 'as': 'catppuccin' }
 
 Plug '/home/magicalne/ssd/git/opensource/fim.nvim'
-Plug '/home/magicalne/ssd/git/opensource/nvim.ai'
-"Plug 'magicalne/nvim.ai', { 'branch': 'main' }
+"Plug '/home/magicalne/ssd/git/opensource/nvim.ai'
+Plug 'magicalne/nvim.ai', { 'branch': 'main' }
 call plug#end()
 
 if has('nvim')
@@ -481,9 +481,9 @@ lspconfig.pyright.setup{
   --         hint_enable = false,
   --     }
   -- end,
-  on_init = function(client)
-      client.config.settings.python.pythonPath = get_python_path(client.config.root_dir)
-  end
+  -- on_init = function(client)
+  --     client.config.settings.python.pythonPath = get_python_path(client.config.root_dir)
+  -- end
 }
 
 -- ruff
@@ -492,8 +492,48 @@ require('lspconfig').ruff.setup {
   on_attach = on_attach,
   init_options = {
     settings = {
+      configuration = "pyproject.toml",
       -- Any extra CLI arguments for `ruff` go here.
       args = {},
+    }
+  }
+}
+
+-- solidity
+require('lspconfig').solidity_ls_nomicfoundation.setup {
+  capabilities = capabilities,
+  on_attach = on_attach,
+}
+
+require('lspconfig').harper_ls.setup {
+  capabilities = capabilities,
+  on_attach = on_attach,
+  settings = {
+    ["harper-ls"] = {
+      userDictPath = "",
+      fileDictPath = "",
+      linters = {
+        SpellCheck = true,
+        SpelledNumbers = false,
+        AnA = true,
+        SentenceCapitalization = true,
+        UnclosedQuotes = true,
+        WrongQuotes = false,
+        LongSentences = true,
+        RepeatedWords = true,
+        Spaces = true,
+        Matcher = true,
+        CorrectNumberSuffix = true
+      },
+      codeActions = {
+        ForceStable = false
+      },
+      markdown = {
+        IgnoreLinkTitle = false
+      },
+      diagnosticSeverity = "hint",
+      isolateEnglish = false,
+      dialect = "American"
     }
   }
 }
