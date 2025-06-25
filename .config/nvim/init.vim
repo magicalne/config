@@ -970,8 +970,8 @@ nnoremap <S-tab> :bp<CR>
 nnoremap <tab> :bn<CR>
 
 " Move by line
-nnoremap j gj
-nnoremap k gk
+nnoremap <expr> j (v:count == 0 ? 'gj' : 'j')
+nnoremap <expr> k (v:count == 0 ? 'gk' : 'k')
 
 " <leader><leader> toggles between buffers
 nnoremap <leader><leader> <c-^>
