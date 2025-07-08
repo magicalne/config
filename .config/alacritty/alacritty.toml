@@ -1,7 +1,8 @@
+[general]
 live_config_reload = true
 
 [colors]
-draw_bold_text_with_bright_colors = false
+draw_bold_text_with_bright_colors = true
 
 [[colors.indexed_colors]]
 color = "0xff966c"
@@ -43,21 +44,30 @@ foreground = "0xc8d3f5"
 background = "#ffffff"
 foreground = "#FF1493"
 
-[font.bold]
-family = "Lekton Nerd Font"
-style = "Bold"
-
-[font.italic]
-family = "iosevka"
-style = "Italic Bold"
-
-[font.normal]
-family = "Monego Nerd Font Fix"
-style = "Regular"
-
-[font.offset]
-x = 0
-y = 2
+[font]
+normal = { family = "JetBrainsMono Nerd Font Mono", style = "Regular" }
+bold = { family = "JetBrainsMono Nerd Font Mono", style = "Bold" }
+italic = { family = "JetBrainsMono Nerd Font Mono", style = "Italic" }
+# normal = { family = "Menlo", style = "Regular" }
+# bold = { family = "Menlo", style = "Bold" }
+# italic = { family = "Menlo", style = "Italic" }
+size = 14.0
+offset = { x = 1, y = 1 }
+#[font.bold]
+##family = "Lekton Nerd Font"
+#style = "Bold"
+#
+#[font.italic]
+##family = "iosevka"
+#style = "Italic Bold"
+#
+#[font.normal]
+##family = "Monego Nerd Font Fix"
+#style = "Regular"
+#
+#[font.offset]
+#x = 0
+#y = 2
 
 [[keyboard.bindings]]
 action = "Paste"
@@ -69,9 +79,20 @@ action = "Copy"
 key = "C"
 mods = "Alt"
 
+[[keyboard.bindings]]
+action = "ResetFontSize"
+key = "W"
+mods = "Command"
+
+[[keyboard.bindings]]
+action = "ResetFontSize"
+key = "T"
+mods = "Command"
+
 [scrolling]
 history = 0
 
 [window]
-decorations = "none"
+decorations = "Full"
 opacity = 0.8
+blur = false
