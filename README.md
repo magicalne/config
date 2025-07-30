@@ -74,3 +74,9 @@ podman run -it --gpus all \
   tabbyml/tabby serve --model StarCoder-1B --device cuda --no-webserver
 ```
 
+
+## Keyboard
+
+[Mouse full emulation with right option super fast with help of `karabinar`](./mouse_key.json)
+
+
