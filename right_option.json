@@ -1,0 +1,74 @@
+{
+    "description": "Remap right_option + q to [ and right_option + w to ] using a variable",
+    "manipulators": [
+        {
+            "type": "basic",
+            "from": {
+                "key_code": "right_option",
+                "modifiers": {
+                    "optional": [
+                        "any"
+                    ]
+                }
+            },
+            "to": [
+                {
+                    "set_variable": {
+                        "name": "bracket_mode",
+                        "value": 1
+                    }
+                }
+            ],
+            "to_after_key_up": [
+                {
+                    "set_variable": {
+                        "name": "bracket_mode",
+                        "value": 0
+                    }
+                }
+            ],
+            "to_if_alone": [
+                {
+                    "key_code": "right_option"
+                }
+            ]
+        },
+        {
+            "type": "basic",
+            "from": {
+                "key_code": "q"
+            },
+            "to": [
+                {
+                    "key_code": "open_bracket"
+                }
+            ],
+            "conditions": [
+                {
+                    "type": "variable_if",
+                    "name": "bracket_mode",
+                    "value": 1
+                }
+            ]
+        },
+        {
+            "type": "basic",
+            "from": {
+                "key_code": "w"
+            },
+            "to": [
+                {
+                    "key_code": "close_bracket"
+                }
+            ],
+            "conditions": [
+                {
+                    "type": "variable_if",
+                    "name": "bracket_mode",
+                    "value": 1
+                }
+            ]
+        }
+    ]
+}
+
