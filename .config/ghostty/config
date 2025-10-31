@@ -1,0 +1,5 @@
+background = 282c34
+background-blur = true
+background-opacity = 0.8
+custom-shader = shaders/cursor_tail.glsl
+#custom-shader = shaders/ripple_cursor.glsl

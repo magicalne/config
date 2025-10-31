@@ -1,6 +1,7 @@
 # My ultimate configs
 
 - alacritty
+- ghostty
 - zsh
 - tmux
 - nvim
@@ -75,8 +76,7 @@ podman run -it --gpus all \
 ```
 
 
-## Keyboard
 
-[Mouse full emulation with right option super fast with help of `karabinar`](./mouse_key.json)
+## Ghostty
 
-
+- https://github.com/sahaj-b/ghostty-cursor-shaders
