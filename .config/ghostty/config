@@ -1,5 +1,16 @@
-background = 282c34
 background-blur = true
 background-opacity = 0.8
-custom-shader = shaders/cursor_tail.glsl
-#custom-shader = shaders/ripple_cursor.glsl
+# force opacity is applied to the window background (for neovim, tmux)
+background-opacity-cells = true
+## shaders
+#cursor_sweep.glsl
+#cursor_tail.glsl
+#cursor_warp.glsl
+#rectangle_boom_cursor.glsl
+#ripple_cursor.glsl
+#ripple_rectangle_cursor.glsl
+#sonic_boom_cursor.glsl
+custom-shader = shaders/cursor_warp.glsl
+font-family = "JetBrainsMono Nerd Font Mono"
+#theme = Catppuccin Mocha
+theme = Catppuccin Frappe
