@@ -106,10 +106,16 @@ hi Normal ctermbg=NONE
 " LSP configuration
 lua << END
 
+-- Theme
+require("catppuccin").setup({
+    transparent_background = true, -- disables setting the background color.
+})
+
 -- vim.cmd.colorscheme "catppuccin-latte"
 -- vim.cmd.colorscheme "catppuccin-frappe"
--- vim.cmd.colorscheme "catppuccin-macchiato"
-vim.cmd.colorscheme "catppuccin"
+--vim.cmd.colorscheme "catppuccin-macchiato"
+vim.cmd.colorscheme "catppuccin-mocha"
+
 
 -- Setup auto-pair
 require("nvim-autopairs").setup {
@@ -385,9 +391,9 @@ local on_attach = function(client, bufnr)
   -- Get signatures (and _only_ signatures) when in argument lists.
   require "lsp_signature".on_attach({
     hint_enable = true,
-    doc_lines = 0,
+    bind = true,
     handler_opts = {
-      border = "none"
+      border = "rounded"
     },
   })
 end
@@ -409,7 +415,12 @@ local autocmd = vim.api.nvim_create_autocmd
 autocmd({ "BufLeave" }, { pattern = { "*" }, command = "if &buftype == 'quickfix'|q|endif" })
 
 local capabilities = require('cmp_nvim_lsp').default_capabilities(vim.lsp.protocol.make_client_capabilities())
-lspconfig.rust_analyzer.setup {
+
+vim.lsp.config('*', {
+  on_attach = on_attach,
+  capabilities = capabilities,
+})
+vim.lsp.config['rust_analyzer'] = {
   on_attach = on_attach,
   flags = {
     debounce_text_changes = 150,
@@ -429,19 +440,6 @@ lspconfig.rust_analyzer.setup {
   },
   capabilities = capabilities,
 }
-lspconfig.clangd.setup {
-  on_attach = on_attach,
-  capabilities = capabilities,
-}
-lspconfig.gopls.setup {
-  on_attach = on_attach,
-  capabilities = capabilities,
-}
-require'lspconfig'.ts_ls.setup{
-  on_attach = on_attach,
-  capabilities = capabilities,
-}
-
 vim.lsp.handlers["textDocument/publishDiagnostics"] = vim.lsp.with(
   vim.lsp.diagnostic.on_publish_diagnostics, {
     virtual_text = true,
@@ -470,24 +468,8 @@ local function get_python_path(workspace)
   return vim.fn.exepath('python3') or vim.fn.exepath('python') or 'python'
 end
 
-lspconfig.pyright.setup{
-  capabilities = capabilities,
---  on_attach = function(client)
---      client.server_capabilities.completionProvider = false
---  end,
-  on_attach = on_attach,
-  -- on_attach = function()
-  --     require'lsp_signature'.on_attach {
-  --         hint_enable = false,
-  --     }
-  -- end,
-  -- on_init = function(client)
-  --     client.config.settings.python.pythonPath = get_python_path(client.config.root_dir)
-  -- end
-}
-
 -- ruff
-require('lspconfig').ruff.setup {
+vim.lsp.config('ruff', {
   capabilities = capabilities,
   on_attach = on_attach,
   init_options = {
@@ -497,15 +479,9 @@ require('lspconfig').ruff.setup {
       args = {},
     }
   }
-}
+})
 
--- solidity
-require('lspconfig').solidity_ls_nomicfoundation.setup {
-  capabilities = capabilities,
-  on_attach = on_attach,
-}
-
-require('lspconfig').harper_ls.setup {
+vim.lsp.config('harper_ls', {
   capabilities = capabilities,
   on_attach = on_attach,
   settings = {
@@ -536,7 +512,7 @@ require('lspconfig').harper_ls.setup {
       dialect = "American"
     }
   }
-}
+})
 
 require('lazydev').setup({
   capabilities = capabilities,
@@ -870,6 +846,8 @@ set colorcolumn=120 " and give me a colored column
 set showcmd " Show (partial) command in status line.
 set mouse=a " Enable mouse usage (all modes) in terminals
 set shortmess+=c " don't give |ins-completion-menu| messages.
+" Better jump list
+set jumpoptions=stack
 
 " Show those damn hidden characters
 " Verbose: set listchars=nbsp:¬,eol:¶,extends:»,precedes:«,trail:•
@@ -1048,6 +1026,7 @@ autocmd Filetype html,xml,xsl,php source ~/.config/nvim/scripts/closetag.vim
 " Markdown spell check
 autocmd FileType markdown setlocal spell
 autocmd FileType lua,vim setlocal shiftwidth=2 softtabstop=2 expandtab
+
 
 " =============================================================================
 " # Footer
