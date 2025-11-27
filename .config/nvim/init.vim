@@ -427,12 +427,10 @@ vim.lsp.config['rust_analyzer'] = {
   },
   settings = {
     ["rust-analyzer"] = {
-      checkOnSave = {
-          command = "clippy"
-      },
+      checkOnSave = true,
       cargo = {
         features = "all",
-	loadOutDirsFromCheck = true,
+        loadOutDirsFromCheck = true,
       },
       -- procMacro = { enable = true, },
       completion = { postfix = { enable = true, }, },
@@ -525,6 +523,11 @@ require('lazydev').setup({
   }
 
 })
+
+vim.lsp.enable('rust_analyzer')
+vim.lsp.enable('ruff')
+vim.lsp.enable('harper_ls')
+vim.lsp.enable('lazydev')
 
 -- treesitter
 require'nvim-treesitter.configs'.setup {
