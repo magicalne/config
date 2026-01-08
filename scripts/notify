@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+
+# Get tmux pane title if available, otherwise use "Terminal"
+if [[ -n "$TMUX" ]]; then
+    TITLE="Tmux pane: $(tmux display-message -p ' #I:#{?#{==:#{pane_current_path},#{HOME}},~,#{b:pane_current_path}}')"
+else
+    TITLE="Terminal"
+fi
+
+MESSAGE="${1:-Need your ATTENTION}"
+
+osascript <<EOF
+display notification "$MESSAGE" with title "$TITLE"
+EOF
