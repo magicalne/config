@@ -80,3 +80,38 @@ podman run -it --gpus all \
 ## Ghostty
 
 - https://github.com/sahaj-b/ghostty-cursor-shaders
+
+## Claude Code
+
+```sh
+# global setting in ~/.claude/settings.json
+# rely on ./scripts/notify
+❯ cat ~/.claude/settings.json
+{
+  "env": {
+    "ANTHROPIC_DEFAULT_HAIKU_MODEL": "glm-4.5-air",
+    "ANTHROPIC_DEFAULT_SONNET_MODEL": "glm-4.7",
+    "ANTHROPIC_DEFAULT_OPUS_MODEL": "glm-4.7"
+  },
+  "enabledPlugins": {
+    "typescript-lsp@claude-plugins-official": true,
+    "rust-analyzer-lsp@claude-plugins-official": true,
+    "pyright-lsp@claude-plugins-official": true
+  },
+  "alwaysThinkingEnabled": true,
+  "hooks": {
+    "Notification": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "notify"
+          }
+        ]
+      }
+    ]
+  }
+}
+
+```
