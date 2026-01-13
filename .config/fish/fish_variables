@@ -1,0 +1,4 @@
+# This file contains fish universal variable definitions.
+# VERSION: 3.0
+SETUVAR __fish_initialized:4300
+SETUVAR fish_user_paths:/Users/sh003/\x2ecargo/bin\x1e/opt/homebrew/opt/binutils/bin\x1e/opt/shadowsocks/bin\x1e/opt/go/bin\x1e/Users/sh003/\x2elocal/bin\x1e/Users/sh003/\x2ebun/bin
