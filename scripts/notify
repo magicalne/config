@@ -2,12 +2,14 @@
 
 # Get tmux pane title if available, otherwise use "Terminal"
 if [[ -n "$TMUX" ]]; then
-    TITLE="Tmux pane: $(tmux display-message -p ' #I:#{?#{==:#{pane_current_path},#{HOME}},~,#{b:pane_current_path}}')"
+    PANE_INDEX=$(tmux display-message -p -t "$TMUX_PANE" '#I')
+    PANE_PATH=$(tmux display-message -p -t "$TMUX_PANE" '#{?#{==:#{pane_current_path},#{HOME}},~,#{b:pane_current_path}}')
+    TITLE="Pane $PANE_INDEX: $PANE_PATH"
 else
     TITLE="Terminal"
 fi
 
-MESSAGE="${1:-Need your ATTENTION}"
+MESSAGE="${1:-Needs attention}"
 
 osascript <<EOF
 display notification "$MESSAGE" with title "$TITLE"
