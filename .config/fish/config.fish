@@ -59,3 +59,7 @@ set -g fish_color_autosuggestion brblack
 # Vi Mode (from your vi-mode plugin)
 # ============================================
 fish_vi_key_bindings
+
+# Vi mode clipboard integration
+bind -M visual y 'fish_clipboard_copy; commandline -f end-selection; commandline -f repaint'
+bind -M normal p 'fish_clipboard_paste'
