@@ -397,6 +397,31 @@ install_neovim_plugins() {
     nvim --headless '+PlugInstall --sync' +qa || warn "Neovim plugin installation failed"
 }
 
+configure_git_hooks() {
+    if ! command_exists git; then
+        warn "git not available; skipping git hook setup"
+        return 0
+    fi
+
+    if ! git -C "$REPO_ROOT" rev-parse --git-dir >/dev/null 2>&1; then
+        warn "Not inside a git repository; skipping git hook setup"
+        return 0
+    fi
+
+    if [ ! -d "$REPO_ROOT/.githooks" ]; then
+        warn "Missing .githooks directory; skipping git hook setup"
+        return 0
+    fi
+
+    if [ "$DRY_RUN" -eq 1 ]; then
+        info "would set git core.hooksPath to .githooks"
+        return 0
+    fi
+
+    git -C "$REPO_ROOT" config core.hooksPath .githooks
+    info "configured repo-local git hooks (.githooks)"
+}
+
 seed_private_example() {
     local example="$1"
     local target="$2"
@@ -441,6 +466,7 @@ Next steps / reminders:
 - Private API keys should never be added to tracked files under dotfiles/.
 - Private pi MCP config lives in ~/.pi/agent/mcp.json.
 - Review and fill the placeholder files created during bootstrap before using AI tooling.
+- A pre-commit hook is configured through .githooks and runs ./scripts/check-secrets.sh.
 - Use ./sync-local.sh before editing in the repo if you made changes directly in $HOME.
 EOF
 }
@@ -464,6 +490,8 @@ main() {
     [ "$WITH_ZSH" -eq 1 ] && apply_args+=(--with-zsh)
     [ "$DRY_RUN" -eq 1 ] && apply_args+=(--dry-run)
     "$REPO_ROOT/apply.sh" "${apply_args[@]}"
+
+    configure_git_hooks
 
     if [ "$SKIP_PLUGINS" -eq 0 ]; then
         install_tpm

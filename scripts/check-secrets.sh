@@ -10,6 +10,7 @@ PATTERN='(sk-[A-Za-z0-9_-]+|ghp_[A-Za-z0-9]+|glpat-[A-Za-z0-9_-]+|xox[baprs]-[A-
 if rg -n --hidden -S "$PATTERN" \
     . \
     -g '!.git/*' \
+    -g '!scripts/check-secrets.sh' \
     -g '!dotfiles/.pi/agent/mcp.example.json' \
     -g '!dotfiles/.config/fish/llm.local.example.fish' \
     -g '!dotfiles/.profile.local.example' \

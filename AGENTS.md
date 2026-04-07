@@ -58,9 +58,10 @@ Optional / legacy:
 
 Automation and manifests:
 
-- `bootstrap.sh` installs missing software, applies symlinks, and installs plugins.
+- `bootstrap.sh` installs missing software, applies symlinks, installs plugins, and configures repo-local git hooks.
 - `apply.sh` refreshes symlinks into `$HOME`.
 - `sync-local.sh` imports unmanaged `$HOME` changes back into the repo.
+- `.githooks/pre-commit` runs the secret sanity check before commits when hooks are enabled.
 - `manifests/links.txt` is the source of truth for file mappings.
 - `packages/` contains package manifests for macOS and Linux.
 

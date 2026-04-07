@@ -126,6 +126,16 @@ Optional legacy zsh support:
 ./sync-local.sh
 ```
 
+### Enable repo git hooks manually
+
+`./bootstrap.sh` configures repo-local git hooks automatically.
+
+If you want to enable them manually:
+
+```sh
+git config core.hooksPath .githooks
+```
+
 Dry-run is supported on all scripts:
 
 ```sh
@@ -201,7 +211,8 @@ Recommended:
 - pi MCP secrets are not committed. Start from `dotfiles/.pi/agent/mcp.example.json`.
 - LLM API keys are not committed. Keep them in `~/.config/fish/llm.local.fish`.
 - General private shell exports belong in `~/.profile.local`.
-- Run `./scripts/check-secrets.sh` before committing if you want a quick sanity check.
+- A repo-local pre-commit hook in `.githooks/pre-commit` runs `./scripts/check-secrets.sh`.
+- Run `./scripts/check-secrets.sh` manually any time you want a quick sanity check.
 - zsh is kept as a legacy fallback, not the preferred future path.
 
 ## Optional extras
