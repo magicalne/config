@@ -1,0 +1,40 @@
+# Local override files and env files
+.profile.local
+.zshrc.local
+.env
+.env.local
+.env.*.local
+.config/.env.local
+.config/fish/local.fish
+.config/fish/llm.local.fish
+dotfiles/.profile.local
+dotfiles/.zshrc.local
+dotfiles/.env
+dotfiles/.env.local
+dotfiles/.config/.env.local
+dotfiles/.config/fish/local.fish
+dotfiles/.config/fish/llm.local.fish
+
+# Machine-local shell state
+.config/fish/fish_variables
+dotfiles/.config/fish/fish_variables
+
+# Private pi state
+.pi/agent/auth.json
+.pi/agent/mcp.json
+.pi/agent/mcp-cache.json
+.pi/agent/mcp-npx-cache.json
+.pi/agent/settings.local.json
+.pi/agent/models.local.json
+dotfiles/.pi/agent/auth.json
+dotfiles/.pi/agent/mcp.json
+dotfiles/.pi/agent/mcp-cache.json
+dotfiles/.pi/agent/mcp-npx-cache.json
+dotfiles/.pi/agent/settings.local.json
+dotfiles/.pi/agent/models.local.json
+
+# Editor / OS noise
+.DS_Store
+*.swp
+*.swo
+*~

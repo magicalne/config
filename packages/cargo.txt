@@ -1,0 +1,4 @@
+exa
+fnm
+harper-ls
+proximity-sort

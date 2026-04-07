@@ -1,0 +1,6 @@
+# Copy to ~/.profile.local and keep it out of git.
+# Put machine-specific or secret shell exports here.
+
+# Example:
+# export SOME_PRIVATE_TOKEN="replace-me"
+# export CUSTOM_PROXY_URL="http://127.0.0.1:7890"

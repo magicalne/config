@@ -142,3 +142,5 @@ fi
 unset __conda_setup
 # <<< conda initialize <<<
 eval "$(starship init zsh)"
+
+[ -f ~/.zshrc.local ] && source ~/.zshrc.local

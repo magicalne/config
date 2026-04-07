@@ -1,0 +1,21 @@
+{
+  "lastChangelogVersion": "0.65.2",
+  "defaultProvider": "github-copilot",
+  "defaultModel": "gpt-5.4",
+  "defaultThinkingLevel": "high",
+  "hideThinkingBlock": false,
+  "enabledModels": [
+    "glm-5.1",
+    "glm-5-turbo",
+    "glm-5",
+    "glm-4.7",
+    "github-copilot/claude-sonnet-4.6",
+    "github-copilot/claude-opus-4.6",
+    "github-copilot/gpt-5.3-codex",
+    "github-copilot/gpt-5.4"
+  ],
+  "packages": [
+    "npm:pi-provider-kiro",
+    "npm:pi-mcp-adapter"
+  ]
+}

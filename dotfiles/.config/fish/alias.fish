@@ -1,10 +1,14 @@
-## Aliases migrated from zsh config
+## Shared aliases for macOS and Linux
 
 # System aliases
 alias sudo='sudo '
 alias vim='nvim'
 
-# Use exa if available, otherwise fallback to ls
+# Prefer eza if available, but keep exa-compatible muscle memory.
+if command -q eza
+    alias exa='eza'
+end
+
 if command -q exa
     alias ls='exa'
     alias ll='exa -l'
@@ -14,26 +18,27 @@ else
     alias ll='ls -la'
 end
 
-# Docker/Podman aliases
-# Uncomment if you use podman instead of docker
+# Docker / Podman
+# Uncomment if you want docker -> podman by default.
 # alias docker='podman'
 
-# CDK alias with bunx
+# CDK via bunx
 alias cdk='bunx cdk'
 
-# Clipboard aliases (Linux)
-# Uncomment for xclip clipboard support
-# alias pbcopy='xclip -selection clipboard'
-# alias pbpaste='xclip -selection clipboard -o'
-
-# ========== Additional useful fish aliases ==========
+# Clipboard helpers on Linux
+if test (uname) = Linux
+    if command -q xclip
+        alias pbcopy='xclip -selection clipboard'
+        alias pbpaste='xclip -selection clipboard -o'
+    end
+end
 
 # Navigation improvements
 alias ..='cd ..'
 alias ...='cd ../..'
 alias ....='cd ../../..'
 
-# Git shortcuts (if you use git)
+# Git shortcuts
 alias g='git'
 alias gs='git status'
 alias ga='git add'
@@ -62,9 +67,21 @@ alias du='du -h'
 
 # Network
 alias myip='curl ifconfig.me'
-alias ports='netstat -tulpn'
 
-# ========== Functions (better than aliases for complex commands) ==========
+function ports --description 'List listening ports'
+    switch (uname)
+        case Darwin
+            lsof -nP -iTCP -sTCP:LISTEN
+        case Linux
+            if command -q ss
+                ss -tulpn
+            else if command -q netstat
+                netstat -tulpn
+            else
+                echo 'No supported port listing command found'
+            end
+    end
+end
 
 # Create directory and cd into it
 function mkcd --description 'Create directory and cd into it'

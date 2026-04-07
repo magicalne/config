@@ -1,83 +1,84 @@
-# LLM API Keys and configurations
-# Separated from general environment variables for better organization
+# Shared LLM provider switching.
+#
+# Do not put secrets in this file.
+# Keep private keys in ~/.config/fish/llm.local.fish instead.
+# A placeholder template is available in:
+#   dotfiles/.config/fish/llm.local.example.fish
 
-# ========== Individual API Keys ==========
-set -gx GROQ_API_KEY ""
-set -gx DEEPSEEK_API_KEY ""
-set -gx QWEN_API_KEY ""
-set -gx MISTRAL_API_KEY ""
-set -gx GOOGLE_API_KEY ""
-set -gx HYPERBOLIC_API_KEY ""
-set -gx OPENROUTER_API_KEY ""
-set -gx FAST_API_KEY ""
-set -gx CO_API_KEY ""
-set -gx CEREBRAS_API_KEY ""
-set -gx GEMINI_API_KEY ""
+# Non-secret defaults
+set -q MOONSHOT_API_BASE; or set -gx MOONSHOT_API_BASE "https://api.moonshot.cn/v1"
 
-# Kimi (Moonshot)
-set -gx MOONSHOT_API_BASE "https://api.moonshot.cn/v1"
-set -gx MOONSHOT_API_KEY ""
+# Load private local keys or overrides before selecting defaults.
+if test -f ~/.config/fish/llm.local.fish
+    source ~/.config/fish/llm.local.fish
+end
 
-# Qwen (DashScope)
-set -gx DASHSCOPE_API_KEY ""
+function __llm_set_or_erase --argument-names name value
+    if test -n "$value"
+        set -gx $name $value
+    else
+        set -e $name 2>/dev/null
+    end
+end
 
-# Zhipu (Z.ai)
-set -gx ZAI_API_KEY ""
+function __llm_maybe_echo --argument-names message
+    if not set -q __llm_quiet
+        echo $message
+    end
+end
 
 # ========== OPENAI Compatible Configurations ==========
-# Note: There are multiple OPENAI configurations - only one can be active at a time
+# Note: There are multiple OPENAI configurations - only one can be active at a time.
 
-# Option 1: Using Qwen with DashScope as OpenAI
 function use_openai_qwen
-    set -gx OPENAI_API_KEY $DASHSCOPE_API_KEY
+    __llm_set_or_erase OPENAI_API_KEY "$DASHSCOPE_API_KEY"
     set -gx OPENAI_BASE_URL "https://dashscope.aliyuncs.com/compatible-mode/v1"
     set -gx OPENAI_MODEL "qwen3-coder-plus"
-    echo "Switched to OpenAI-compatible Qwen"
+    __llm_maybe_echo "Switched to OpenAI-compatible Qwen"
 end
 
-# Option 2: Using Zhipu as OpenAI
 function use_openai_zhipu
-    set -gx OPENAI_API_KEY $ZAI_API_KEY
+    __llm_set_or_erase OPENAI_API_KEY "$ZAI_API_KEY"
     set -gx OPENAI_BASE_URL "https://open.bigmodel.cn/api/coding/paas/v4/"
     set -gx OPENAI_MODEL "glm-4.6"
-    echo "Switched to OpenAI-compatible Zhipu"
+    __llm_maybe_echo "Switched to OpenAI-compatible Zhipu"
 end
 
-# Option 3: Using OpenRouter as OpenAI
 function use_openai_openrouter
-    set -gx OPENAI_API_KEY $OPENROUTER_API_KEY
+    __llm_set_or_erase OPENAI_API_KEY "$OPENROUTER_API_KEY"
     set -gx OPENAI_BASE_URL "https://openrouter.ai/api/v1"
     set -gx OPENAI_MODEL "qwen/qwen-2.5-coder-32b-instruct:free"
-    echo "Switched to OpenAI-compatible OpenRouter"
+    __llm_maybe_echo "Switched to OpenAI-compatible OpenRouter"
 end
-
-# Default: Use Qwen as OpenAI
-use_openai_qwen
 
 # ========== Anthropic Compatible Configurations ==========
-# Option 1: Kimi (Moonshot) as Anthropic
+
 function use_anthropic_kimi
     set -gx ANTHROPIC_BASE_URL https://api.moonshot.cn/anthropic
-    set -gx ANTHROPIC_API_KEY $MOONSHOT_API_KEY
-    echo "Switched to Anthropic-compatible Kimi"
+    __llm_set_or_erase ANTHROPIC_API_KEY "$MOONSHOT_API_KEY"
+    set -e ANTHROPIC_AUTH_TOKEN 2>/dev/null
+    __llm_maybe_echo "Switched to Anthropic-compatible Kimi"
 end
 
-# Option 2: Z.ai (Zhipu) as Anthropic
 function use_anthropic_zai
     set -gx ANTHROPIC_BASE_URL https://open.bigmodel.cn/api/anthropic
-    set -gx ANTHROPIC_AUTH_TOKEN $ZAI_API_KEY
-    echo "Switched to Anthropic-compatible Z.ai"
+    set -e ANTHROPIC_API_KEY 2>/dev/null
+    __llm_set_or_erase ANTHROPIC_AUTH_TOKEN "$ZAI_API_KEY"
+    __llm_maybe_echo "Switched to Anthropic-compatible Z.ai"
 end
 
-# Option 3: Qwen as Anthropic
 function use_anthropic_qwen
-    set -gx ANTHROPIC_API_KEY $DASHSCOPE_API_KEY
     set -gx ANTHROPIC_BASE_URL https://dashscope.aliyuncs.com/api/v2/apps/claude-code-proxy
-    echo "Switched to Anthropic-compatible Qwen"
+    __llm_set_or_erase ANTHROPIC_API_KEY "$DASHSCOPE_API_KEY"
+    set -e ANTHROPIC_AUTH_TOKEN 2>/dev/null
+    __llm_maybe_echo "Switched to Anthropic-compatible Qwen"
 end
 
-# Default: Use Z.ai as Anthropic
+# Load default provider selections quietly during shell startup.
+set -g __llm_quiet 1
+use_openai_qwen
 use_anthropic_zai
+set -e __llm_quiet
 
 # ========== Model Selection Helper Functions ==========
 function llm_status
@@ -120,16 +121,15 @@ end
 # ========== API Key Validation ==========
 function validate_api_keys
     echo "=== API Key Status ==="
-    
-    # Check if key is set and not empty
-    function check_key
-        if test -n "$$argv[1]"
-            echo "✅ $argv[1]: Set"
+
+    function check_key --argument-names key_name
+        if test -n "$$key_name"
+            echo "✅ $key_name: Set"
         else
-            echo "❌ $argv[1]: Not set"
+            echo "❌ $key_name: Not set"
         end
     end
-    
+
     check_key GROQ_API_KEY
     check_key DEEPSEEK_API_KEY
     check_key MOONSHOT_API_KEY
@@ -141,7 +141,6 @@ function validate_api_keys
 end
 
 # ========== Quick Provider Switching ==========
-# Alias for quick switching
 abbr -a openai-qwen 'use_openai_qwen'
 abbr -a openai-zhipu 'use_openai_zhipu'
 abbr -a openai-or 'use_openai_openrouter'

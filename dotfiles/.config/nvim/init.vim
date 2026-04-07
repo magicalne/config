@@ -72,8 +72,9 @@ Plug 'f-person/git-blame.nvim'
 " Theme
 Plug 'catppuccin/nvim', { 'as': 'catppuccin' }
 
-Plug '/home/magicalne/ssd/git/opensource/fim.nvim'
-"Plug '/home/magicalne/ssd/git/opensource/nvim.ai'
+if filereadable(expand('~/.config/nvim/local.plugins.vim'))
+  source ~/.config/nvim/local.plugins.vim
+endif
 Plug 'magicalne/nvim.ai', { 'branch': 'main' }
 call plug#end()
 
@@ -630,7 +631,7 @@ ui = {
     --model = "codestral",
     --model = "llama3.1"
     --model = "llama3.1:70b",
-    endpoint = "http://192.168.2.47:11434",
+    endpoint = vim.env.OLLAMA_HOST or "http://127.0.0.1:11434",
   }
 })
 
@@ -731,7 +732,11 @@ let g:localvimrc_ask = 0
 let g:rustfmt_autosave = 1
 let g:rustfmt_emit_files = 1
 let g:rustfmt_fail_silently = 0
-let g:rust_clip_command = 'xclip -selection clipboard'
+if executable('pbcopy')
+    let g:rust_clip_command = 'pbcopy'
+else
+    let g:rust_clip_command = 'xclip -selection clipboard'
+endif
 
 " Completion
 " Better completion
@@ -1030,6 +1035,9 @@ autocmd Filetype html,xml,xsl,php source ~/.config/nvim/scripts/closetag.vim
 autocmd FileType markdown setlocal spell
 autocmd FileType lua,vim setlocal shiftwidth=2 softtabstop=2 expandtab
 
+if filereadable(expand('~/.config/nvim/local.vim'))
+  source ~/.config/nvim/local.vim
+endif
 
 " =============================================================================
 " # Footer

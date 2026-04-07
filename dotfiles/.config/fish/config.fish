@@ -2,8 +2,8 @@
 # Environment Variables
 # ============================================
 #
-source ~/.config/fish/alias.fish
 source ~/.config/fish/env.fish
+source ~/.config/fish/alias.fish
 set -gx EDITOR nvim
 
 
@@ -63,3 +63,10 @@ fish_vi_key_bindings
 # Vi mode clipboard integration
 bind -M visual y 'fish_clipboard_copy; commandline -f end-selection; commandline -f repaint'
 bind -M normal p 'fish_clipboard_paste'
+
+# ============================================
+# Machine-local overrides
+# ============================================
+if test -f ~/.config/fish/local.fish
+    source ~/.config/fish/local.fish
+end

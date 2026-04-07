@@ -1,0 +1,21 @@
+# group|repo source|home target
+common|dotfiles/.tmux.conf|.tmux.conf
+common|dotfiles/.tmux.remote.conf|.tmux.remote.conf
+common|dotfiles/.profile|.profile
+common|dotfiles/.config/fish/alias.fish|.config/fish/alias.fish
+common|dotfiles/.config/fish/config.fish|.config/fish/config.fish
+common|dotfiles/.config/fish/env.fish|.config/fish/env.fish
+common|dotfiles/.config/fish/llm.fish|.config/fish/llm.fish
+common|dotfiles/.config/alacritty/alacritty.toml|.config/alacritty/alacritty.toml
+common|dotfiles/.config/ghostty/config|.config/ghostty/config
+common|dotfiles/.config/nvim/init.vim|.config/nvim/init.vim
+common|dotfiles/.config/nvim/autoload/plug.vim|.config/nvim/autoload/plug.vim
+common|dotfiles/.config/nvim/scripts/closetag.vim|.config/nvim/scripts/closetag.vim
+common|dotfiles/.config/nvim/scripts/spacetab.vim|.config/nvim/scripts/spacetab.vim
+common|dotfiles/.config/starship.toml|.config/starship.toml
+common|dotfiles/.pi/agent/settings.json|.pi/agent/settings.json
+common|dotfiles/.pi/agent/models.json|.pi/agent/models.json
+common|dotfiles/.pi/extensions/notify.ts|.pi/extensions/notify.ts
+common|dotfiles/.local/bin/notify|.local/bin/notify
+common|dotfiles/.local/bin/edit_tmux_buffer.sh|.local/bin/edit_tmux_buffer.sh
+optional-zsh|dotfiles/.zshrc|.zshrc
