@@ -51,7 +51,7 @@ The exact mapping list lives in `manifests/links.txt`.
 - rust-analyzer
 - clippy
 - rustfmt
-- python / pip / pipenv
+- python / uv
 - ruff
 - pyright
 - go / goimports
@@ -155,8 +155,8 @@ Package manifests live in `packages/`:
 - `packages/dnf.txt`
 - `packages/pacman.txt`
 - `packages/cargo.txt`
-- `packages/pip.txt`
-- `packages/npm-global.txt`
+- `packages/uv-tools.txt`
+- `packages/bun-global.txt`
 
 ## Local / private overrides
 
@@ -205,7 +205,8 @@ Recommended:
 
 ## Notes
 
-- tmux plugins are installed through TPM into `~/.tmux/plugins`.
+- `bootstrap.sh` bootstraps TPM into `~/.tmux/plugins/tpm` and installs tmux plugins.
+- Python CLI tools are installed with `uv tool install`; Bun-managed CLIs live under `~/.bun/bin`.
 - Neovim plugins are managed with vim-plug.
 - `dotfiles/.local/bin/notify` is linked to `~/.local/bin/notify` and supports both macOS and Linux notification backends.
 - pi MCP secrets are not committed. Start from `dotfiles/.pi/agent/mcp.example.json`.

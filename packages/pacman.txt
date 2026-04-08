@@ -15,7 +15,6 @@ npm
 pkgconf
 podman
 python
-python-pip
 ripgrep
 tmux
 xclip

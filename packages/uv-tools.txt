@@ -1,0 +1,2 @@
+# Python CLI tools installed with uv tool install
+ruff

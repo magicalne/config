@@ -99,7 +99,7 @@ Automation and manifests:
 - exa
 - cargo / rustup
 - rust-analyzer / clippy / rustfmt
-- python / pip / pipenv
+- python / uv
 - ruff / pyright
 - go / goimports
 - llvm / clang-format

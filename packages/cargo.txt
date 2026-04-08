@@ -2,3 +2,4 @@ exa
 fnm
 harper-ls
 proximity-sort
+tree-sitter-cli

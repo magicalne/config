@@ -1,0 +1,3 @@
+# Node.js CLI packages installed with bun add --global
+@mariozechner/pi-coding-agent
+pyright

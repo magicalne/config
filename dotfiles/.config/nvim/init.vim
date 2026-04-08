@@ -439,13 +439,11 @@ vim.lsp.config['rust_analyzer'] = {
   },
   capabilities = capabilities,
 }
-vim.lsp.handlers["textDocument/publishDiagnostics"] = vim.lsp.with(
-  vim.lsp.diagnostic.on_publish_diagnostics, {
-    virtual_text = true,
-    signs = true,
-    update_in_insert = true,
-  }
-)
+vim.diagnostic.config({
+  virtual_text = true,
+  signs = true,
+  update_in_insert = true,
+})
 -- pyright
 local util = require('lspconfig/util')
 local path = util.path
@@ -531,47 +529,44 @@ vim.lsp.enable('harper_ls')
 vim.lsp.enable('lazydev')
 
 -- treesitter
-require'nvim-treesitter.configs'.setup {
-  -- A list of parser names, or "all"
-  ensure_installed = { "c", "lua", "rust", "python", "typescript", "solidity" },
+require('nvim-treesitter').setup {}
 
-  -- Install parsers synchronously (only applied to `ensure_installed`)
-  sync_install = false,
-
-  -- Automatically install missing parsers when entering buffer
-  auto_install = true,
-
-  -- List of parsers to ignore installing (for "all")
-  --ignore_install = { "javascript" },
-
-  highlight = {
-    -- `false` will disable the whole extension
-    enable = true,
-
-    -- NOTE: these are the names of the parsers and not the filetype. (for example if you want to
-    -- disable highlighting for the `tex` filetype, you need to include `latex` in this list as this is
-    -- the name of the parser)
-    -- list of language that will be disabled
-    disable = { },
-
-    -- Setting this to true will run `:h syntax` and tree-sitter at the same time.
-    -- Set this to `true` if you depend on 'syntax' being enabled (like for indentation).
-    -- Using this option may slow down your editor, and you may see some duplicate highlights.
-    -- Instead of true it can also be a list of languages
-    additional_vim_regex_highlighting = false,
+require('nvim-ts-autotag').setup({
+  opts = {
+    enable_close = true,
+    enable_rename = true,
+    enable_close_on_slash = false,
   },
-  incremental_selection = {
-    enable = true,
-    keymaps = {
-      init_selection = "gnn", -- set to `false` to disable one of the mappings
-      node_incremental = "grn",
-      scope_incremental = "grc",
-      node_decremental = "grm",
-    },
-  },
-  -- nvim-ts-autotag
-  autotag = { enable = true, }
+})
+
+local treesitter_filetypes = {
+  "c",
+  "html",
+  "javascript",
+  "javascriptreact",
+  "lua",
+  "python",
+  "rust",
+  "solidity",
+  "typescript",
+  "typescriptreact",
 }
+
+local treesitter_group = vim.api.nvim_create_augroup("treesitter-start", { clear = true })
+vim.api.nvim_create_autocmd("FileType", {
+  group = treesitter_group,
+  pattern = treesitter_filetypes,
+  callback = function(args)
+    local ok = pcall(vim.treesitter.start, args.buf)
+    if not ok then
+      return
+    end
+
+    vim.bo[args.buf].indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
+    vim.wo.foldexpr = 'v:lua.vim.treesitter.foldexpr()'
+    vim.wo.foldmethod = 'expr'
+  end,
+})
 
 -- local fim = require('fim.config')
 -- fim:setup({
@@ -680,7 +675,6 @@ let g:secure_modelines_allowed_items = [
 
 " Lightline
 let g:lightline = {
-      \ 'colorscheme': 'catppuccin',
       \ 'enable': {
           \ 'tabline': 0,
       \ },

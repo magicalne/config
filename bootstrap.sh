@@ -284,45 +284,37 @@ install_cargo_packages() {
     done < <(run_list_file "$REPO_ROOT/packages/cargo.txt")
 }
 
-install_pip_packages() {
-    local pkg
-
-    if ! command_exists python3; then
-        warn "python3 not available; skipping pip packages"
+install_uv_if_missing() {
+    if command_exists uv; then
+        info "uv already installed"
         return 0
     fi
 
-    log "Installing pip packages"
-    while IFS= read -r pkg || [ -n "$pkg" ]; do
-        case "$pkg" in
-            ''|'#'*)
-                continue
-                ;;
-        esac
+    if [ "$DRY_RUN" -eq 1 ]; then
+        info "would install uv"
+        return 0
+    fi
 
-        if python3 -m pip show "$pkg" >/dev/null 2>&1; then
-            info "$pkg already installed"
-            continue
-        fi
-
-        if [ "$DRY_RUN" -eq 1 ]; then
-            info "would install $pkg via pip"
-            continue
-        fi
-
-        python3 -m pip install --user "$pkg" || warn "Failed to install $pkg via pip"
-    done < <(run_list_file "$REPO_ROOT/packages/pip.txt")
+    log "Installing uv"
+    curl -LsSf https://astral.sh/uv/install.sh | env INSTALLER_NO_MODIFY_PATH=1 sh
+    append_user_bins_to_path
 }
 
-install_npm_global_packages() {
+uv_tool_installed() {
+    local pkg="$1"
+
+    uv tool list 2>/dev/null | awk '/^[^[:space:]-]/ { print $1 }' | grep -Fxq "$pkg"
+}
+
+install_uv_tools() {
     local pkg
 
-    if ! command_exists npm; then
-        warn "npm not available; skipping global npm packages"
+    if ! command_exists uv; then
+        warn "uv not available; skipping uv tools"
         return 0
     fi
 
-    log "Installing global npm packages"
+    log "Installing uv tools"
     while IFS= read -r pkg || [ -n "$pkg" ]; do
         case "$pkg" in
             ''|'#'*)
@@ -330,22 +322,68 @@ install_npm_global_packages() {
                 ;;
         esac
 
-        if npm list -g --depth=0 "$pkg" >/dev/null 2>&1; then
+        if uv_tool_installed "$pkg"; then
             info "$pkg already installed"
             continue
         fi
 
         if [ "$DRY_RUN" -eq 1 ]; then
-            info "would install $pkg via npm"
+            info "would install $pkg via uv tool"
             continue
         fi
 
-        npm install -g "$pkg" || warn "Failed to install $pkg via npm"
-    done < <(run_list_file "$REPO_ROOT/packages/npm-global.txt")
+        uv tool install "$pkg" || warn "Failed to install $pkg via uv tool"
+    done < <(run_list_file "$REPO_ROOT/packages/uv-tools.txt")
+}
+
+bun_global_package_installed() {
+    local pkg="$1"
+
+    bun pm ls -g --depth 0 2>/dev/null | grep -Fq "$pkg@"
+}
+
+install_bun_global_packages() {
+    local pkg
+
+    if ! command_exists bun; then
+        warn "bun not available; skipping Bun global packages"
+        return 0
+    fi
+
+    log "Installing Bun global packages"
+    while IFS= read -r pkg || [ -n "$pkg" ]; do
+        case "$pkg" in
+            ''|'#'*)
+                continue
+                ;;
+        esac
+
+        if bun_global_package_installed "$pkg"; then
+            info "$pkg already installed"
+            continue
+        fi
+
+        if [ "$DRY_RUN" -eq 1 ]; then
+            info "would install $pkg via bun"
+            continue
+        fi
+
+        bun add --global "$pkg" || warn "Failed to install $pkg via bun"
+    done < <(run_list_file "$REPO_ROOT/packages/bun-global.txt")
+}
+
+tmux_conf_uses_tpm() {
+    local tmux_conf="$HOME/.tmux.conf"
+
+    [ -f "$tmux_conf" ] || return 1
+    grep -Fq "tmux-plugins/tpm" "$tmux_conf"
 }
 
 install_tpm() {
-    if [ -d "$HOME/.tmux/plugins/tpm" ]; then
+    local tpm_dir="$HOME/.tmux/plugins/tpm"
+    local tpm_entry="$tpm_dir/tpm"
+
+    if [ -x "$tpm_entry" ]; then
         info "tpm already installed"
         return 0
     fi
@@ -355,46 +393,100 @@ install_tpm() {
         return 0
     fi
 
+    if [ -d "$tpm_dir" ]; then
+        if [ "$DRY_RUN" -eq 1 ]; then
+            info "would recreate incomplete ~/.tmux/plugins/tpm checkout"
+            return 0
+        fi
+
+        warn "Refreshing incomplete TPM checkout at ~/.tmux/plugins/tpm"
+        rm -rf "$tpm_dir"
+    fi
+
     if [ "$DRY_RUN" -eq 1 ]; then
-        info "would clone tmux-plugins/tpm"
+        info "would clone tmux-plugins/tpm into ~/.tmux/plugins/tpm"
         return 0
     fi
 
     log "Installing tmux plugin manager"
     mkdir -p "$HOME/.tmux/plugins"
-    git clone https://github.com/tmux-plugins/tpm "$HOME/.tmux/plugins/tpm"
+    git clone https://github.com/tmux-plugins/tpm "$tpm_dir" || warn "Failed to clone tmux-plugins/tpm"
 }
 
 install_tmux_plugins() {
     local installer="$HOME/.tmux/plugins/tpm/bin/install_plugins"
+
+    if ! tmux_conf_uses_tpm; then
+        warn "~/.tmux.conf does not reference TPM; skipping tmux plugin installation"
+        return 0
+    fi
+
+    if [ "$DRY_RUN" -eq 1 ]; then
+        info "would install tmux plugins via TPM"
+        return 0
+    fi
+
+    if ! command_exists tmux; then
+        warn "tmux not available; skipping tmux plugin installation"
+        return 0
+    fi
 
     if [ ! -x "$installer" ]; then
         warn "tpm installer not found; skipping tmux plugin installation"
         return 0
     fi
 
-    if [ "$DRY_RUN" -eq 1 ]; then
-        info "would install tmux plugins"
+    log "Installing tmux plugins"
+    if ! tmux start-server \; source-file "$HOME/.tmux.conf" >/dev/null 2>&1; then
+        warn "Failed to source ~/.tmux.conf for TPM; skipping tmux plugin installation"
         return 0
     fi
 
-    log "Installing tmux plugins"
     "$installer" || warn "tmux plugin installation failed"
 }
 
 install_neovim_plugins() {
+    local nvim_init="$HOME/.config/nvim/init.vim"
+    local bootstrap_vim
+
     if ! command_exists nvim; then
         warn "nvim not available; skipping Neovim plugin installation"
         return 0
     fi
 
+    if [ ! -f "$nvim_init" ]; then
+        warn "~/.config/nvim/init.vim not found; skipping Neovim plugin installation"
+        return 0
+    fi
+
     if [ "$DRY_RUN" -eq 1 ]; then
-        info "would run PlugInstall for Neovim"
+        info "would run PlugInstall for Neovim and install treesitter parsers"
+        return 0
+    fi
+
+    bootstrap_vim="$(mktemp "${TMPDIR:-/tmp}/nvim-bootstrap.XXXXXX")"
+    if ! awk '{ print } /call plug#end\(\)/ { exit }' "$nvim_init" > "$bootstrap_vim"; then
+        rm -f "$bootstrap_vim"
+        warn "Failed to prepare bootstrap Neovim config"
         return 0
     fi
 
     log "Installing Neovim plugins"
-    nvim --headless '+PlugInstall --sync' +qa || warn "Neovim plugin installation failed"
+    if ! nvim --headless -u "$bootstrap_vim" '+PlugInstall --sync' +qa; then
+        rm -f "$bootstrap_vim"
+        warn "Neovim plugin installation failed"
+        return 0
+    fi
+
+    rm -f "$bootstrap_vim"
+
+    log "Installing Neovim treesitter parsers"
+    nvim --headless \
+        "+lua require('nvim-treesitter').install({ 'c', 'html', 'javascript', 'lua', 'python', 'rust', 'solidity', 'tsx', 'typescript' }):wait(300000)" \
+        +qa || warn "Neovim treesitter parser installation failed"
+
+    log "Verifying Neovim config"
+    nvim --headless +qa || warn "Neovim config verification failed after plugin installation"
 }
 
 configure_git_hooks() {
@@ -466,6 +558,8 @@ Next steps / reminders:
 - Private API keys should never be added to tracked files under dotfiles/.
 - Private pi MCP config lives in ~/.pi/agent/mcp.json.
 - Review and fill the placeholder files created during bootstrap before using AI tooling.
+- Python CLI tools are installed with uv; Bun-managed CLIs land in ~/.bun/bin.
+- bootstrap.sh bootstraps TPM into ~/.tmux/plugins/tpm and installs tmux plugins unless --skip-plugins is used.
 - A pre-commit hook is configured through .githooks and runs ./scripts/check-secrets.sh.
 - Use ./sync-local.sh before editing in the repo if you made changes directly in $HOME.
 EOF
@@ -481,15 +575,21 @@ main() {
         [ -f "$HOME/.cargo/env" ] && . "$HOME/.cargo/env"
         install_starship_if_missing
         install_bun_if_missing
+        install_uv_if_missing
         install_cargo_packages
-        install_pip_packages
-        install_npm_global_packages
+        install_uv_tools
+        install_bun_global_packages
     fi
 
-    apply_args=()
-    [ "$WITH_ZSH" -eq 1 ] && apply_args+=(--with-zsh)
-    [ "$DRY_RUN" -eq 1 ] && apply_args+=(--dry-run)
-    "$REPO_ROOT/apply.sh" "${apply_args[@]}"
+    if [ "$WITH_ZSH" -eq 1 ] && [ "$DRY_RUN" -eq 1 ]; then
+        "$REPO_ROOT/apply.sh" --with-zsh --dry-run
+    elif [ "$WITH_ZSH" -eq 1 ]; then
+        "$REPO_ROOT/apply.sh" --with-zsh
+    elif [ "$DRY_RUN" -eq 1 ]; then
+        "$REPO_ROOT/apply.sh" --dry-run
+    else
+        "$REPO_ROOT/apply.sh"
+    fi
 
     configure_git_hooks
 
