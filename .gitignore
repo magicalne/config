@@ -18,6 +18,12 @@ dotfiles/.config/fish/llm.local.fish
 # Machine-local shell state
 .config/fish/fish_variables
 dotfiles/.config/fish/fish_variables
+.local/state/
+dotfiles/.local/state/
+.local/share/fish/
+dotfiles/.local/share/fish/
+.local/share/fnm/
+dotfiles/.local/share/fnm/
 
 # Private pi state
 .pi/agent/auth.json
@@ -26,12 +32,14 @@ dotfiles/.config/fish/fish_variables
 .pi/agent/mcp-npx-cache.json
 .pi/agent/settings.local.json
 .pi/agent/models.local.json
+.pi/agent/sessions/
 dotfiles/.pi/agent/auth.json
 dotfiles/.pi/agent/mcp.json
 dotfiles/.pi/agent/mcp-cache.json
 dotfiles/.pi/agent/mcp-npx-cache.json
 dotfiles/.pi/agent/settings.local.json
 dotfiles/.pi/agent/models.local.json
+dotfiles/.pi/agent/sessions/
 
 # Editor / OS noise
 .DS_Store

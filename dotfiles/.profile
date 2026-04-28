@@ -1,3 +1,9 @@
+# Kiro CLI pre block. Keep near the top of this file.
+# The generated hook is bash-specific, so do not run it when zsh sources ~/.profile.
+if [ -n "${BASH_VERSION:-}" ] && [ -x "$HOME/.local/bin/kiro-cli" ]; then
+  eval "$("$HOME/.local/bin/kiro-cli" init bash pre --rcfile profile)"
+fi
+
 [ -f "$HOME/.cargo/env" ] && . "$HOME/.cargo/env"
 
 export GOPATH="$HOME/go"
@@ -13,6 +19,8 @@ prepend_path "$HOME/.local/bin"
 prepend_path "$HOME/.bun/bin"
 prepend_path "$HOME/.cargo/bin"
 prepend_path "$GOPATH/bin"
+prepend_path /opt/go/bin
+prepend_path /opt/shadowsocks/bin
 
 case "$(uname -s)" in
   Darwin)
@@ -39,6 +47,7 @@ export PATH
 
 alias sudo='sudo '
 alias vim='nvim'
+alias cdk='bunx cdk'
 
 if command -v eza >/dev/null 2>&1 && ! command -v exa >/dev/null 2>&1; then
   alias exa='eza'
@@ -52,3 +61,8 @@ else
 fi
 
 [ -f "$HOME/.profile.local" ] && . "$HOME/.profile.local"
+
+# Kiro CLI post block. Keep at the bottom of this file.
+if [ -n "${BASH_VERSION:-}" ] && [ -x "$HOME/.local/bin/kiro-cli" ]; then
+  eval "$("$HOME/.local/bin/kiro-cli" init bash post --rcfile profile)"
+fi

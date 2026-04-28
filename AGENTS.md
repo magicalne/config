@@ -44,9 +44,14 @@ Primary shared configs in this repo include:
 - `dotfiles/.config/nvim/`
 - `dotfiles/.config/starship.toml`
 - `dotfiles/.config/alacritty/alacritty.toml`
+- `dotfiles/.config/alacritty/catppuccin-*.toml`
 - `dotfiles/.config/ghostty/config`
+- `dotfiles/.config/ghostty/shaders/`
 - `dotfiles/.pi/agent/settings.json`
 - `dotfiles/.pi/agent/models.json`
+- `dotfiles/.pi/agent/agents/`
+- `dotfiles/.pi/agent/prompts/`
+- `dotfiles/.pi/agent/extensions/`
 - `dotfiles/.pi/extensions/notify.ts`
 - `dotfiles/.local/bin/notify`
 - `dotfiles/.local/bin/edit_tmux_buffer.sh`
@@ -69,6 +74,7 @@ Automation and manifests:
 
 - `dotfiles/.config/nvim/init.vim` is the primary editor config.
 - `dotfiles/.pi/agent/auth.json` and `dotfiles/.pi/agent/mcp.json` are private local files and must not be committed with secrets.
+- `dotfiles/.pi/agent/sessions/` is private conversation history and must not be committed.
 - `dotfiles/.config/fish/llm.fish` is shared logic only. Live API keys belong in `~/.config/fish/llm.local.fish`, not in the repo.
 - General private exports belong in `~/.profile.local`, not in tracked files.
 - `dotfiles/.config/fish/fish_variables` is machine-local state and is intentionally ignored.

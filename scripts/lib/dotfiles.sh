@@ -96,13 +96,13 @@ backup_existing_target() {
     local backup_path
 
     backup_path="$(backup_path_for "$backup_root" "$relative_target")"
-    ensure_parent_dir "$backup_path"
 
     if [ "$dry_run" -eq 1 ]; then
         info "would back up $target_path -> $backup_path"
         return 0
     fi
 
+    ensure_parent_dir "$backup_path"
     mv "$target_path" "$backup_path"
     info "backed up $target_path -> $backup_path"
 }
@@ -122,7 +122,9 @@ apply_link() {
         return 0
     fi
 
-    ensure_parent_dir "$target_path"
+    if [ "$dry_run" -ne 1 ]; then
+        ensure_parent_dir "$target_path"
+    fi
 
     if [ -L "$target_path" ] && [ "$(readlink "$target_path")" = "$source_path" ]; then
         info "$target_relative already linked"
@@ -162,14 +164,12 @@ import_local_file() {
         return 0
     fi
 
-    ensure_parent_dir "$repo_path"
-
     if [ -e "$repo_path" ] || [ -L "$repo_path" ]; then
         backup_path="$(backup_path_for "$backup_root" "$repo_relative")"
-        ensure_parent_dir "$backup_path"
         if [ "$dry_run" -eq 1 ]; then
             info "would back up repo copy $repo_relative -> $backup_path"
         else
+            ensure_parent_dir "$backup_path"
             cp -R "$repo_path" "$backup_path"
             info "backed up repo copy $repo_relative -> $backup_path"
         fi
@@ -180,6 +180,7 @@ import_local_file() {
         return 0
     fi
 
+    ensure_parent_dir "$repo_path"
     cp "$home_path" "$repo_path"
     info "imported $target_relative -> $repo_relative"
 }

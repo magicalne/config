@@ -193,6 +193,7 @@ Private / machine-local files intentionally ignored by git include repo-side pla
 - `dotfiles/.pi/agent/mcp.json`
 - `dotfiles/.pi/agent/mcp-cache.json`
 - `dotfiles/.pi/agent/mcp-npx-cache.json`
+- `dotfiles/.pi/agent/sessions/`
 - local override files such as `dotfiles/.config/fish/llm.local.fish` and `dotfiles/.profile.local`
 
 ## Fonts
@@ -210,6 +211,7 @@ Recommended:
 - Neovim plugins are managed with vim-plug.
 - `dotfiles/.local/bin/notify` is linked to `~/.local/bin/notify` and supports both macOS and Linux notification backends.
 - pi MCP secrets are not committed. Start from `dotfiles/.pi/agent/mcp.example.json`.
+- Shared pi agents, prompts, and global extensions live under `dotfiles/.pi/agent/`; auth, MCP config, caches, and sessions stay local.
 - LLM API keys are not committed. Keep them in `~/.config/fish/llm.local.fish`.
 - General private shell exports belong in `~/.profile.local`.
 - A repo-local pre-commit hook in `.githooks/pre-commit` runs `./scripts/check-secrets.sh`.

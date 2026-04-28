@@ -21,6 +21,21 @@ function __llm_set_or_erase --argument-names name value
     end
 end
 
+function __llm_first_non_empty
+    for value in $argv
+        if test -n "$value"
+            echo $value
+            return 0
+        end
+    end
+end
+
+function __llm_clear_anthropic_default_models
+    set -e ANTHROPIC_DEFAULT_HAIKU_MODEL 2>/dev/null
+    set -e ANTHROPIC_DEFAULT_SONNET_MODEL 2>/dev/null
+    set -e ANTHROPIC_DEFAULT_OPUS_MODEL 2>/dev/null
+end
+
 function __llm_maybe_echo --argument-names message
     if not set -q __llm_quiet
         echo $message
@@ -31,7 +46,7 @@ end
 # Note: There are multiple OPENAI configurations - only one can be active at a time.
 
 function use_openai_qwen
-    __llm_set_or_erase OPENAI_API_KEY "$DASHSCOPE_API_KEY"
+    __llm_set_or_erase OPENAI_API_KEY (__llm_first_non_empty "$DASHSCOPE_API_KEY" "$QWEN_API_KEY")
     set -gx OPENAI_BASE_URL "https://dashscope.aliyuncs.com/compatible-mode/v1"
     set -gx OPENAI_MODEL "qwen3-coder-plus"
     __llm_maybe_echo "Switched to OpenAI-compatible Qwen"
@@ -39,8 +54,9 @@ end
 
 function use_openai_zhipu
     __llm_set_or_erase OPENAI_API_KEY "$ZAI_API_KEY"
-    set -gx OPENAI_BASE_URL "https://open.bigmodel.cn/api/coding/paas/v4/"
-    set -gx OPENAI_MODEL "glm-4.6"
+    # Coding endpoint alternative: https://open.bigmodel.cn/api/coding/paas/v4/
+    set -gx OPENAI_BASE_URL "https://open.bigmodel.cn/api/paas/v4/"
+    set -gx OPENAI_MODEL "glm-5"
     __llm_maybe_echo "Switched to OpenAI-compatible Zhipu"
 end
 
@@ -57,6 +73,7 @@ function use_anthropic_kimi
     set -gx ANTHROPIC_BASE_URL https://api.moonshot.cn/anthropic
     __llm_set_or_erase ANTHROPIC_API_KEY "$MOONSHOT_API_KEY"
     set -e ANTHROPIC_AUTH_TOKEN 2>/dev/null
+    __llm_clear_anthropic_default_models
     __llm_maybe_echo "Switched to Anthropic-compatible Kimi"
 end
 
@@ -64,19 +81,31 @@ function use_anthropic_zai
     set -gx ANTHROPIC_BASE_URL https://open.bigmodel.cn/api/anthropic
     set -e ANTHROPIC_API_KEY 2>/dev/null
     __llm_set_or_erase ANTHROPIC_AUTH_TOKEN "$ZAI_API_KEY"
+    set -gx ANTHROPIC_DEFAULT_HAIKU_MODEL glm-4.7-Flash
+    set -gx ANTHROPIC_DEFAULT_SONNET_MODEL glm-4.7
+    set -gx ANTHROPIC_DEFAULT_OPUS_MODEL glm-5
     __llm_maybe_echo "Switched to Anthropic-compatible Z.ai"
 end
 
 function use_anthropic_qwen
     set -gx ANTHROPIC_BASE_URL https://dashscope.aliyuncs.com/api/v2/apps/claude-code-proxy
-    __llm_set_or_erase ANTHROPIC_API_KEY "$DASHSCOPE_API_KEY"
+    __llm_set_or_erase ANTHROPIC_API_KEY (__llm_first_non_empty "$DASHSCOPE_API_KEY" "$QWEN_API_KEY")
     set -e ANTHROPIC_AUTH_TOKEN 2>/dev/null
+    __llm_clear_anthropic_default_models
     __llm_maybe_echo "Switched to Anthropic-compatible Qwen"
+end
+
+function use_claude_login
+    set -e ANTHROPIC_API_KEY 2>/dev/null
+    set -e ANTHROPIC_AUTH_TOKEN 2>/dev/null
+    set -e ANTHROPIC_BASE_URL 2>/dev/null
+    __llm_clear_anthropic_default_models
+    __llm_maybe_echo "Switched to Claude login/default Anthropic configuration"
 end
 
 # Load default provider selections quietly during shell startup.
 set -g __llm_quiet 1
-use_openai_qwen
+use_openai_zhipu
 use_anthropic_zai
 set -e __llm_quiet
 
@@ -86,10 +115,13 @@ function llm_status
     echo "OpenAI API: $OPENAI_BASE_URL"
     echo "OpenAI Model: $OPENAI_MODEL"
     echo "Anthropic Base: $ANTHROPIC_BASE_URL"
+    echo "Anthropic Haiku: $ANTHROPIC_DEFAULT_HAIKU_MODEL"
+    echo "Anthropic Sonnet: $ANTHROPIC_DEFAULT_SONNET_MODEL"
+    echo "Anthropic Opus: $ANTHROPIC_DEFAULT_OPUS_MODEL"
     echo ""
     echo "Available providers:"
     echo "  OpenAI: qwen, zhipu, openrouter"
-    echo "  Anthropic: kimi, zai, qwen"
+    echo "  Anthropic: kimi, zai, qwen, claude-login"
 end
 
 function set_openai_provider
@@ -113,8 +145,10 @@ function set_anthropic_provider
             use_anthropic_zai
         case qwen
             use_anthropic_qwen
+        case claude-login login claude
+            use_claude_login
         case "*"
-            echo "Unknown provider. Available: kimi, zai, qwen"
+            echo "Unknown provider. Available: kimi, zai, qwen, claude-login"
     end
 end
 
@@ -134,10 +168,13 @@ function validate_api_keys
     check_key DEEPSEEK_API_KEY
     check_key MOONSHOT_API_KEY
     check_key DASHSCOPE_API_KEY
+    check_key QWEN_API_KEY
     check_key ZAI_API_KEY
     check_key OPENROUTER_API_KEY
     check_key GEMINI_API_KEY
     check_key CEREBRAS_API_KEY
+    check_key FAST_API_KEY
+    check_key CO_API_KEY
 end
 
 # ========== Quick Provider Switching ==========
@@ -147,5 +184,6 @@ abbr -a openai-or 'use_openai_openrouter'
 abbr -a anthropic-kimi 'use_anthropic_kimi'
 abbr -a anthropic-zai 'use_anthropic_zai'
 abbr -a anthropic-qwen 'use_anthropic_qwen'
+abbr -a anthropic-login 'use_claude_login'
 abbr -a llm-status 'llm_status'
 abbr -a check-keys 'validate_api_keys'

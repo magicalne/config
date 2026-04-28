@@ -5,6 +5,7 @@
 
 # Core provider keys
 # set -gx DASHSCOPE_API_KEY "replace-me"
+# set -gx QWEN_API_KEY "replace-me"
 # set -gx ZAI_API_KEY "replace-me"
 # set -gx OPENROUTER_API_KEY "replace-me"
 # set -gx MOONSHOT_API_KEY "replace-me"
@@ -17,6 +18,8 @@
 # set -gx HYPERBOLIC_API_KEY "replace-me"
 # set -gx CEREBRAS_API_KEY "replace-me"
 # set -gx GEMINI_API_KEY "replace-me"
+# set -gx FAST_API_KEY "replace-me"
+# set -gx CO_API_KEY "replace-me"
 
 # Optional overrides
 # set -gx OLLAMA_HOST "http://127.0.0.1:11434"

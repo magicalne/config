@@ -1,3 +1,6 @@
+# Kiro CLI pre block. Keep near the top of this file.
+[[ -x "$HOME/.local/bin/kiro-cli" ]] && eval "$("$HOME/.local/bin/kiro-cli" init zsh pre --rcfile zshrc)"
+
 # If you come from bash you might have to change your $PATH.
 # export PATH=$HOME/bin:/usr/local/bin:$PATH
 
@@ -74,11 +77,11 @@ ZSH_THEME="agnoster"
 plugins=(
 	git
 	git-prompt
-	zsh-autosuggestions
 	fzf
 	vi-mode
+	zsh-autosuggestions
 )
-export FPATH="/usr/share/zsh/5.9/functions:$FPATH"
+[ -d /usr/share/zsh/5.9/functions ] && export FPATH="/usr/share/zsh/5.9/functions:$FPATH"
 
 source $ZSH/oh-my-zsh.sh
 
@@ -117,7 +120,8 @@ export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
 
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
-source ~/.profile
+[ -f ~/.profile ] && source ~/.profile
+export EDITOR="${EDITOR:-nvim}"
 
 # current folder only
 prompt_dir() {
@@ -126,21 +130,22 @@ prompt_dir() {
 
 ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE='fg=4'
 
-
-# >>> conda initialize >>>
-# !! Contents within this block are managed by 'conda init' !!
-__conda_setup="$('/home/magicalne/ssd/apps/miniconda3/bin/conda' 'shell.zsh' 'hook' 2> /dev/null)"
-if [ $? -eq 0 ]; then
-    eval "$__conda_setup"
-else
-    if [ -f "/home/magicalne/ssd/apps/miniconda3/etc/profile.d/conda.sh" ]; then
-        . "/home/magicalne/ssd/apps/miniconda3/etc/profile.d/conda.sh"
-    else
-        export PATH="/home/magicalne/ssd/apps/miniconda3/bin:$PATH"
-    fi
+if command -v fnm >/dev/null 2>&1; then
+  eval "$(fnm env --use-on-cd --shell zsh)"
 fi
-unset __conda_setup
-# <<< conda initialize <<<
-eval "$(starship init zsh)"
+
+# bun completions
+[ -s "$HOME/.bun/_bun" ] && source "$HOME/.bun/_bun"
+
+# bun
+export BUN_INSTALL="$HOME/.bun"
+[ -d "$BUN_INSTALL/bin" ] && export PATH="$BUN_INSTALL/bin:$PATH"
+
+if command -v starship >/dev/null 2>&1; then
+  eval "$(starship init zsh)"
+fi
 
 [ -f ~/.zshrc.local ] && source ~/.zshrc.local
+
+# Kiro CLI post block. Keep at the bottom of this file.
+[[ -x "$HOME/.local/bin/kiro-cli" ]] && eval "$("$HOME/.local/bin/kiro-cli" init zsh post --rcfile zshrc)"

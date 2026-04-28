@@ -1,7 +1,12 @@
+window-show-tab-bar = never
+# Use fish as the default Ghostty command without hardcoding a Homebrew path.
+command = fish
+
 background-blur = true
 background-opacity = 0.8
 # force opacity is applied to the window background (for neovim, tmux)
 background-opacity-cells = true
+
 ## shaders
 #cursor_sweep.glsl
 #cursor_tail.glsl
@@ -14,3 +19,4 @@ custom-shader = shaders/cursor_warp.glsl
 font-family = "JetBrainsMono Nerd Font Mono"
 #theme = Catppuccin Mocha
 theme = Catppuccin Frappe
+bell-features = audio

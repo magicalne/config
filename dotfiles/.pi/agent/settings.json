@@ -1,9 +1,9 @@
 {
-  "lastChangelogVersion": "0.65.2",
+  "lastChangelogVersion": "0.70.5",
   "defaultProvider": "github-copilot",
-  "defaultModel": "gpt-5.4",
-  "defaultThinkingLevel": "high",
-  "hideThinkingBlock": false,
+  "defaultModel": "gpt-5.5",
+  "defaultThinkingLevel": "xhigh",
+  "hideThinkingBlock": true,
   "enabledModels": [
     "glm-5.1",
     "glm-5-turbo",
@@ -11,8 +11,11 @@
     "glm-4.7",
     "github-copilot/claude-sonnet-4.6",
     "github-copilot/claude-opus-4.6",
+    "github-copilot/gpt-5.5",
+    "github-copilot/gpt-5.4",
     "github-copilot/gpt-5.3-codex",
-    "github-copilot/gpt-5.4"
+    "deepseek/deepseek-v4-flash",
+    "deepseek/deepseek-v4-pro"
   ],
   "packages": [
     "npm:pi-provider-kiro",

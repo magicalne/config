@@ -9,7 +9,9 @@ for path in \
     $HOME/.bun/bin \
     $HOME/.local/bin \
     $HOME/.cargo/bin \
-    $GOPATH/bin
+    $GOPATH/bin \
+    /opt/go/bin \
+    /opt/shadowsocks/bin
     if test -d $path
         fish_add_path $path
     end

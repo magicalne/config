@@ -2,13 +2,19 @@
 
 set -euo pipefail
 
-message="${1:-Needs attention}"
+# Usage:
+#   notify                  # title: Needs attention, body: current terminal/tmux context
+#   notify "Done"           # title: Done, body: current terminal/tmux context
+#   notify "Title" "Body"   # explicit title and body
 
-title="Terminal"
-if [[ -n "${TMUX:-}" ]] && command -v tmux >/dev/null 2>&1; then
+title="${1:-Needs attention}"
+body="${2:-Terminal}"
+
+if [[ $# -lt 2 && -n "${TMUX:-}" ]] && command -v tmux >/dev/null 2>&1; then
+    session_name="$(tmux display-message -p -t "${TMUX_PANE:-}" '#S' 2>/dev/null || echo '?')"
     pane_index="$(tmux display-message -p -t "${TMUX_PANE:-}" '#I' 2>/dev/null || echo '?')"
     pane_path="$(tmux display-message -p -t "${TMUX_PANE:-}" '#{?#{==:#{pane_current_path},#{HOME}},~,#{b:pane_current_path}}' 2>/dev/null || echo '~')"
-    title="Pane ${pane_index}: ${pane_path}"
+    body="Session: ${session_name}: Pane ${pane_index}: ${pane_path}"
 fi
 
 case "$(uname -s)" in
@@ -17,17 +23,22 @@ case "$(uname -s)" in
             osascript -e 'on run argv' \
                 -e 'display notification (item 2 of argv) with title (item 1 of argv)' \
                 -e 'end run' \
-                "$title" "$message"
+                "$title" "$body"
+
+            sound="${NOTIFY_SOUND:-/System/Library/Sounds/Sosumi.aiff}"
+            if [[ -n "$sound" && -f "$sound" ]] && command -v afplay >/dev/null 2>&1; then
+                afplay "$sound" >/dev/null 2>&1 &
+            fi
             exit 0
         fi
         ;;
     Linux)
         if command -v notify-send >/dev/null 2>&1; then
-            notify-send "$title" "$message"
+            notify-send "$title" "$body"
             exit 0
         fi
         ;;
 esac
 
 printf '\a'
-printf '%s: %s\n' "$title" "$message" >&2
+printf '%s: %s\n' "$title" "$body" >&2

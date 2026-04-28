@@ -49,7 +49,7 @@ Plug 'hrsh7th/cmp-buffer', {'branch': 'main'}
 Plug 'hrsh7th/cmp-path', {'branch': 'main'}
 Plug 'hrsh7th/nvim-cmp', {'branch': 'main'}
 Plug 'ray-x/lsp_signature.nvim'
-Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
+Plug 'nvim-treesitter/nvim-treesitter', {'branch': 'main', 'do': ':TSUpdate'}
 
 " Only because nvim-cmp _requires_ snippets
 Plug 'hrsh7th/cmp-vsnip', {'branch': 'main'}
@@ -60,6 +60,7 @@ Plug 'cespare/vim-toml', {'branch': 'main'}
 Plug 'stephpy/vim-yaml'
 Plug 'rust-lang/rust.vim'
 Plug 'rhysd/vim-clang-format'
+Plug 'mfussenegger/nvim-jdtls'
 "Plug 'fatih/vim-go'
 Plug 'dag/vim-fish'
 Plug 'godlygeek/tabular'
@@ -113,9 +114,9 @@ require("catppuccin").setup({
 })
 
 -- vim.cmd.colorscheme "catppuccin-latte"
--- vim.cmd.colorscheme "catppuccin-frappe"
+vim.cmd.colorscheme "catppuccin-frappe"
 --vim.cmd.colorscheme "catppuccin-macchiato"
-vim.cmd.colorscheme "catppuccin-mocha"
+-- vim.cmd.colorscheme "catppuccin-mocha"
 
 
 -- Setup auto-pair
@@ -523,10 +524,22 @@ require('lazydev').setup({
 
 })
 
+vim.lsp.config('jdtls', {
+  capabilities = capabilities,
+  on_attach = on_attach,
+})
+
+vim.lsp.config('ts_ls', {
+  capabilities = capabilities,
+  on_attach = on_attach,
+})
+
 vim.lsp.enable('rust_analyzer')
 vim.lsp.enable('ruff')
 vim.lsp.enable('harper_ls')
 vim.lsp.enable('lazydev')
+vim.lsp.enable('jdtls')
+vim.lsp.enable('ts_ls')
 
 -- treesitter
 require('nvim-treesitter').setup {}
@@ -714,7 +727,7 @@ let g:latex_fold_envs = 0
 let g:latex_fold_sections = []
 
 " Open hotkeys
-map <C-p> :Files<CR>
+map <C-p> :GFiles<CR>
 
 " Quick-save
 nmap <leader>w :w<CR>
@@ -1014,6 +1027,9 @@ au Filetype rust set colorcolumn=120
 " C code style
 au Filetype cpp setlocal shiftwidth=2 softtabstop=2 tabstop=2 expandtab
 au Filetype c setlocal shiftwidth=2 softtabstop=2 tabstop=2 expandtab
+
+" JSON code style
+au Filetype json setlocal shiftwidth=2 softtabstop=2 tabstop=2 expandtab
 
 " Help filetype detection
 autocmd BufRead *.plot set filetype=gnuplot
