@@ -939,6 +939,10 @@ command! -bang -nargs=? -complete=dir GFiles
 inoremap <expr> <c-x><c-k> fzf#vim#complete('cat /usr/share/dict/words')
 " Open new file adjacent to current file
 nnoremap <leader>o :e <C-R>=expand("%:p:h") . "/" <CR>
+" Copy filepath to system clipboard
+nnoremap <leader>yp :let @+=expand('%:p')<CR>      " absolute path
+nnoremap <leader>yf :let @+=expand('%:t')<CR>      " filename only
+nnoremap <leader>yd :let @+=expand('%:p:h')<CR>    " directory
 
 " List open buffers
 nnoremap <leader>b :Buffers <CR>

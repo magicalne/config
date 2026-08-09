@@ -1,24 +1,22 @@
 {
-  "lastChangelogVersion": "0.70.5",
-  "defaultProvider": "github-copilot",
-  "defaultModel": "gpt-5.5",
-  "defaultThinkingLevel": "xhigh",
+  "lastChangelogVersion": "0.80.10",
+  "defaultProvider": "zai",
+  "defaultModel": "glm-5.2",
+  "defaultThinkingLevel": "high",
   "hideThinkingBlock": true,
   "enabledModels": [
-    "glm-5.1",
-    "glm-5-turbo",
-    "glm-5",
-    "glm-4.7",
-    "github-copilot/claude-sonnet-4.6",
-    "github-copilot/claude-opus-4.6",
-    "github-copilot/gpt-5.5",
-    "github-copilot/gpt-5.4",
-    "github-copilot/gpt-5.3-codex",
+    "glm-5.2",
+    "kimi-coding/k3",
+    "github-copilot/claude-fable-5",
+    "github-copilot/gpt-5.6-sol",
     "deepseek/deepseek-v4-flash",
     "deepseek/deepseek-v4-pro"
   ],
   "packages": [
-    "npm:pi-provider-kiro",
-    "npm:pi-mcp-adapter"
-  ]
+    "npm:pi-mcp-adapter",
+    "git:github.com/badlogic/pi-telegram",
+    "npm:pi-memory",
+    "npm:pi-autoresearch"
+  ],
+  "theme": "dark"
 }

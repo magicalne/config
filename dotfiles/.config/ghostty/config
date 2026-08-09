@@ -1,3 +1,4 @@
+window-decoration = none
 window-show-tab-bar = never
 # Use fish as the default Ghostty command without hardcoding a Homebrew path.
 command = fish
